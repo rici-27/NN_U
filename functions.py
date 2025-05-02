@@ -8,4 +8,3 @@ def relu(x):
 
 def tanH(x):
     return 1 - 2/(1 + np.exp(2 * x))
-
