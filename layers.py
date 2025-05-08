@@ -8,26 +8,15 @@ class Layer(ABC):
     # vorsicht, abstractmethod muss for jede (!) Methode neu geschrieben werden, die abstrakt sein soll
     @abstractmethod
     
-    
-    def __init__(self, inTensor, outTensor):
-        self.inTensor = inTensor
-        self.outTensor = outTensor
-    """ wir brauchen noch irgendwie sowas, damit die layer auf die richtigen tensoren zugreifen kann, ohne was doppelt abzuspeichern"""
-    
     # könnten noch Attribut hinzufügen, ob die Layer Parameter enthält oder nicht
-    
 
-    # The main purpose of the forward pass is to fill 
-    # in the elements of the outTensors, while having 
-    # access to the elements in inTensors
-    # """ wie ist das mit dem access gemeint? """
     @abstractmethod
     def forward(self, inTensor, outTensor):
         pass
     
     @abstractmethod
     def backward(self, outTensor, inTensor):
-        pass
+        pass 
     # würde mich hier an Benennung aus VL halten,
     # outTensor bezeichnet hier den, der im Netz später kommt,
     # auch wenn er hier als "Input" verarbeitet wird
@@ -54,24 +43,20 @@ class Input(Layer):
 class FCN(Layer):
 
 
-    def __init__(self, weight: np.ndarray, bias: np.ndarray):
-        # vorsicht, bias ist auch ein Vektor!
+    def __init__(self, weight, bias):
         self.weight = weight
         self.bias = bias
-    """ wieso solten wir weights als Tensor speichern? """
+    # wichtig: weight und bias auch als tensor speichern
+
+    def forward(self, inTensor, outTensor):
+        return np.mathmul(inTensor.elements, self.weight) + self.bias
 
     def backward(self, inTensor, outTensor):
         return np.dot(outTensor.deltas, self.weight.T)
         # output muss dann direkt in korrekten Tensor abgespeichert werden
 
-    def forward(self, inTensor, outTensor):
-        return np.mathmul(inTensor.elements,self.weight) + self.bias
-        # einfach nur returnen ist wohl nicht die idee
-
-    """ das hier haben wir falsch verstanden """
-    """ ich denke backward berechnet die partiellen Ableitungen nach x"""
-    """ calculcate delta weights berechnet dann noch die Ableitung nach den Gewichten!"""
     def calculate_delta_weights(self, inTensor, outTensor):
+        # hier wird die ableitung nach w berechnet UND upgedated
         return self.weight.T
 
 class ACT_sigmoid(Layer):
@@ -80,23 +65,24 @@ class ACT_sigmoid(Layer):
         self.weight = weight
         self.bias = bias
 
-    def backward(self, inTensor, outTensor):
-        return np.dot(outTensor.deltas, self.calculate_delta_weights(inTensor))
-
     def forward(self, inTensor, outTensor):
         return sigmoid(inTensor.elements)
 
+    def backward(self, inTensor, outTensor):
+        return np.dot(outTensor.deltas, self.calculate_delta_weights(inTensor))
+
+    # hier gibt es eigentlich kein delta_weights, kein parameter update
     def calculate_delta_weights(self, inTensor, outTensor):
         vsigmoid = np.vectorize(sigmoid)
         return np.multiply(vsigmoid(inTensor.elements) , (1 - vsigmoid(inTensor.elements)))
 
 
 class Softmax(Layer):
-    
-    def backward(inTensor, outTensor):
-        return
 
     def forward(inTensor):
+        return
+    
+    def backward(inTensor, outTensor):
         return
     
     def calculate_delta_weights(inTensor, outTensor):
@@ -104,6 +90,3 @@ class Softmax(Layer):
 
 
 # irgendwo müssen wir auch den Loss ableiten, gibt es eine "Loss Layer" ?
-
-
-#   Objectorientierte   programmierung (vererbung)
