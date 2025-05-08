@@ -9,24 +9,30 @@ class Network():
         self.layers = layers
         self.loss_layer = loss_layer
 
-        # das Network muss auch die Tensoren haben, 
-        # die werden abhängig von der Shape in den Layern erzeugt
-        # tensoren sind dann in einer liste
+        self.predictions = [] # predictions soll am ende 10 einträge enthalten (hot one encoding)
+        # vielleicht anders als liste implementieren
+        self.loss = Tensor([-1]) # loss ist nur ein skalar
+
         tensors = []
+        # für jede layer in layers einen tensor erzeugen reich!
+        # letzter Tensor enthält wahre Datenn (oder ?)
 
     def forward(self, data):
 
-        self.input_layer.forward(data, self.tensors[0])
+        self.input_layer.forward(input = data, outTensor = self.tensors[0])
         
         for i in range(len(self.layers)):
-            self.layers[i].forward(self.tensors[i], self.tensors[i+1])
+            self.layers[i].forward(inTensor = self.tensors[i], outTensor = self.tensors[i+1])
+        
+        self.loss_layer.forward(inTensor=self.predictions, outTensor=self.loss)
 
-        # eigentlich wird hier nur iterativ aufgerufen oder
-        pass
-        #return loss 
+    def backprop(self):
 
-    def backprop():
+        self.loss_layer.backward(outTensor, inTensor)
+        #eigentlich nur alles rückwärts oder
         # hier passiert die backpropagation
+
+        # und dann nochmal vorwärts durch calculate deltas
         return
        
     def saveParams(self, folder_path):
