@@ -6,3 +6,8 @@ class Tensor:
         self.elements = elements
         self.deltas = deltas
         # wir sollen deltas lazy initiieren, was heißt das?
+
+        # hier noch shape hinzufügen, damit die richtig erzeugt werden und nicht dynamisch
+
+    def __repr__(self):
+        return f"Tensor(elements={self.elements})"

@@ -1,34 +1,38 @@
 from tensor import Tensor
 from layers import *
+import numpy as np
 
 
 class Network():
 
-    def __init__(self, input_layer: Layer, layers: list, loss_layer: Layer):
+    def __init__(self, input_layer: Layer, layers: list, loss_layer: Layer, tensor_list = []):
         self.input_layer = input_layer
         self.layers = layers
         self.loss_layer = loss_layer
+        self.loss = Tensor(0)
 
-        self.predictions = [] # predictions soll am ende 10 einträge enthalten (hot one encoding)
-        # vielleicht anders als liste implementieren
-        self.loss = Tensor([-1]) # loss ist nur ein skalar
+        self.tensor_list = tensor_list
 
-        tensors = []
-        # für jede layer in layers einen tensor erzeugen reich!
-        # letzter Tensor enthält wahre Datenn (oder ?)
 
     def forward(self, data):
+        # kucken wo data eingeht
 
-        self.input_layer.forward(input = data, outTensor = self.tensors[0])
+        t0= Tensor(np.zeros([self.input_layer.outShape[0]]), np.zeros([self.input_layer.outShape[0]]))
+        self.tensor_list.append(t0)
+
+        self.input_layer.forward(input = data, outTensor = self.tensor_list[0])
         
         for i in range(len(self.layers)):
-            self.layers[i].forward(inTensor = self.tensors[i], outTensor = self.tensors[i+1])
+            t = Tensor(np.zeros([self.layers[i].outshape[0]]), np.zeros([self.layers[i].outshape[0]]))
+            self.tensor_list.append(t)
+
+            self.layers[i].forward(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
         
-        self.loss_layer.forward(inTensor=self.predictions, outTensor=self.loss)
+        self.loss_layer.forward(inTensor=self.tensor_list[-1], outTensor=self.loss)
 
     def backprop(self):
 
-        self.loss_layer.backward(outTensor, inTensor)
+
         #eigentlich nur alles rückwärts oder
         # hier passiert die backpropagation
 
