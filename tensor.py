@@ -1,13 +1,10 @@
 ﻿import numpy as np
 
 class Tensor:
-    def __init__(self, elements: np.ndarray, deltas: np.ndarray):
-    ## prüfen ob man so np.array vorgeben kann
+    def __init__(self, elements, dtype=np.float64):
         self.elements = elements
-        self.deltas = deltas
+        self.deltas = np.zeros([np.shape(self.elements)[0], np.shape(self.elements)[0]])
         # wir sollen deltas lazy initiieren, was heißt das?
 
-        # hier noch shape hinzufügen, damit die richtig erzeugt werden und nicht dynamisch
-
-    def __repr__(self):
-        return f"Tensor(elements={self.elements})"
+    # def __repr__(self):
+    #     return f"Tensor(elements={self.elements})"

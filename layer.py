@@ -1,95 +1,84 @@
 ﻿import numpy as np
 from abc import ABC, abstractmethod
 from functions import tanH, ReLu, sigmoid, softmax
+from tensor import Tensor
 
-# nochmal schauen ob alles row oder collumn wise
 
 class Layer(ABC):
     
-    # noch optimieren
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape, outShape, layer_type, num):
         self.inShape = inShape
         self.outShape = outShape
-    # unsicher ob ich beide brauche
+        self.layer_type = layer_type
+        self.num = num
 
     @abstractmethod
     def forward(self, inTensor, outTensor):
         pass
-    
-    # beachte unterschied backward und backprop
+
     @abstractmethod
     def backward(self, outTensor, inTensor):
         pass 
 
-    @abstractmethod
-    def calculate_delta_weights(self, inTensor, outTensor):
-        pass
-    """ das ist hier das Parameter Update, nicht Teil der Backpropagation """
+        # brauchen wir die hier als abstrakte methode?
 
-    @abstractmethod
-    def update_weights(self, inTensor, outTensor):
-        pass
+    # @abstractmethod
+    # def calculate_delta_weights(self, inTensor, outTensor):
+    #     pass
     
-    
+   
 class Input_Layer_MNIST(Layer):
-    # Soll die Daten in einen von unseren Tensoren unwandeln
-    # kriegen wahrscheinlich array und deltas muss erstmal leer initialisiert werden
-    """ shape einarbeiten! sind alles vektoren?"""
-    # Frage: Wollen wir es mit einer Liste machen? batch dies das (eher nicht)
 
-    def __init__(self, inShape, outShape):
+    # in den anderen layern init anpassen, wenn notwendig
+    def __init__(self, inShape, outShape, num, layer_type = "input_layer"):
         self.inShape = inShape
         self.outShape = outShape
 
     def forward(self, data, outTensor):
-        pass
+        outTensor.elements = data.flatten()
 
 
 # Fully connected Layer
 class FCN_Layer(Layer):
 
-    def __init__(self, weight, bias, inShape, outShape):
-        self.weight = weight
-        self.bias = bias
+    def __init__(self, inShape, outShape, num, layer_type = "FCN"):
         self.inShape = inShape
         self.outShape = outShape
-    # wichtig: weight und bias auch als tensor speichern
+        self.num = num
+        self.layer_type = layer_type
+        self.weight = Tensor(np.random.uniform(
+            low=-0.5, high=0.5, size=(self.inShape[0], self.outShape[0])))
+        self.bias = Tensor(np.random.uniform(
+            low=-0.5, high=0.5, size=(self.outShape[0])))
 
     def forward(self, inTensor, outTensor):
-        outTensor.elements = np.mathmul(inTensor.elements, self.weight.elements) + self.bias.elements 
+        outTensor.elements = np.matmul(inTensor.elements, self.weight.elements) + self.bias.elements 
 
     def backward(self, inTensor, outTensor):
-        return np.dot(outTensor.deltas, self.weight.elements.T)
-        # output muss dann direkt in korrekten Tensor abgespeichert werden
+        inTensor.deltas = np.matmul(outTensor.deltas, self.weight.elements.T)
 
     def calculate_delta_weights(self, inTensor, outTensor):
         self.weight.deltas = np.outer(inTensor.elements, outTensor.deltas)
         self.bias.deltas = outTensor.deltas
-    
-    def update_weights(self, inTensor, outTensor):
-        pass
-
 
 class ACT_Layer_sigmoid(Layer):
 
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape):
         self.inShape = inShape
-        self.outShape = outShape
+        self.outShape = inShape
 
-    # müssen wir hier auch noch in und outshape übergeben?
     def forward(self, inTensor, outTensor):
         outTensor.elements = sigmoid(inTensor.elements)
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (outTensor.elements * (1 - outTensor.elements)) * outTensor.deltas
-    # elementweise Multiplikation
 
 
 class ACT_Layer_ReLu(Layer):
 
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape):
         self.inShape = inShape
-        self.outShape = outShape
+        self.outShape = inShape
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = ReLu(inTensor.elements)
@@ -100,9 +89,9 @@ class ACT_Layer_ReLu(Layer):
 
 class ACT_Layer_tanH(Layer):
 
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape):
         self.inShape = inShape
-        self.outShape = outShape
+        self.outShape = inShape
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = tanH(inTensor.elements)
@@ -113,24 +102,25 @@ class ACT_Layer_tanH(Layer):
 
 class Softmax_Layer(Layer):
 
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape):
         self.inShape = inShape
-        self.outShape = outShape
+        self.outShape = inShape
 
-    def forward(inTensor, outTensor):
+    def forward(self, inTensor, outTensor):
         w = np.sum(np.exp(inTensor.elements))
         outTensor.elements = softmax(inTensor.elements, w)
     
-    def backward(inTensor, outTensor):
-        temp = np.exp(inTensor.elements)
+    def backward(self, inTensor, outTensor):
         # das noch effizienter machen :-)
         w = np.sum(np.exp(inTensor.elements))
-        ableitungnachx = (np.diag(w * np.exp(inTensor.elements)) - np.outer(np.exp(inTensor.elements),  np.exp(inTensor.elements)))/w**2
-        inTensor.deltas = np.matmul(ableitungnachx, outTensor.deltas)
+        derivative_wrt_input = (np.diag(w * np.exp(inTensor.elements)) - np.outer(np.exp(inTensor.elements),  np.exp(inTensor.elements)))/(w**2)
+        inTensor.deltas = np.matmul(outTensor.deltas, derivative_wrt_input)
 
 class MSE_Loss_Layer(Layer):
 
-    def __init__(self, inShape, outShape):
+    # # # weiß nicht ob wir shape größe hier brauchen
+    
+    def __init__(self, inShape, outShape, num, layer_type = "MSE_Loss"):
         self.inShape = inShape
         self.outShape = outShape
 
@@ -141,6 +131,8 @@ class MSE_Loss_Layer(Layer):
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (2/inTensor.elements.shape[0]) * (inTensor.elements - outTensor.elements)
+        
+    
 
 class Cross_Entropy_Loss_Layer(Layer):
 
@@ -155,3 +147,4 @@ class Cross_Entropy_Loss_Layer(Layer):
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = - outTensor.elements / inTensor.elements
+        # hier aufpassen dass nicht durch null geteilt wird

@@ -1,26 +1,67 @@
+from tensor import Tensor
+from network import *
+from abc import ABC
 import numpy as np
-from abc import ABC, abstractmethod
-from functions import sigmoid
-import tensorflow as tf
+import time
+import keras
+from optimizer import SGDTrainer
+from layer import *
 
-# Erstellen der Layer
-a = np.array([1, 2, 1])
-b = np.array([2,0,2])
-#print(np.multiply([[0, 4], [1, 2]], [[10, 12], [3, 5]]))
-#print(np.multiply([[0, 4], [1, 2]], [[10, 12], [3, 5]]).T)
+def run_model(train = True):
+    input_layer = Input_Layer_MNIST
+    loss_layer = MSE_Loss_Layer # auf random
+    
+    # hier einfach mal paal layer anlegen
+    
+    layers = []
+    layers.append(FCN_Layer(inShape=784, outShape=196, num = 1))
+    layers.append(ACT_Layer_sigmoid(inShape=196))
+    layers.append(FCN_Layer(inShape=196, outShape=98, num = 2))
+    layers.append(ACT_Layer_tanH(inShape=98))
+    layers.append(FCN_Layer(inShape=98, outShape=10, num = 3))
+    layers.append(Softmax_Layer(inShape=10))
+    
+    (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
+    x_train = x_train /255
+    x_test = x_test /255
 
-#print(np.matmul(a.T, b))
+    # One-Hot-Encoding
+    y_train_onehot = np.zeros(y_train.size, 10, dtype=int)
+    y_train_onehot[np.arange(y_train.size, y_train)] = 1
 
-#print((1+b)/2)
+    y_test_onehot = np.zeros(y_test.size, 10, dtype=int)
+    y_test_onehot[np.arange(y_test.size, y_train)] = 1
+    
+    train_data = (x_train, y_train_onehot)
+    test_data = (x_test, y_test_onehot)
+    
+    network_mnist = Network(input_layer=input_layer, layers = layers, loss_layer=loss_layer)
+    
+    trainer = SGDTrainer(0.5, 10)
+    
+    if train == True:
+        trainer.optimizing(network_mnist, train_data)
+        network_mnist.saveParams()
+        
+    network_mnist.loadParams()
+    
+    mistakes = 0
+    for (x, y) in (x_test, y_test_onehot):
+        network_mnist.forward(x)
+        pred = np.argmax(network_mnist.tensor_list[-1].elements)
+        labels = y_test
+        if pred != labels:
+            mistakes =+ 1
+    
+    print("Accuracy: ", mistakes/len(x_test))    
+        
+        
+        
+        
+    
+    
 
-print(np.diag(2 * np.exp(a)))
-
-tensors = []
-for i in range(7):
-    f"tensor_{i}" = i
-    tensors.append(f"tensor_{i}")
-
-print(tensors)
-
-
-(x_train, y_train), (x_test, y_test) = tf.keras.datasets.mnist.load_data()
+    
+    
+if __name__ == "__main__":
+    run_model()
