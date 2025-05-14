@@ -1,12 +1,7 @@
 import numpy as np
 import unittest
-
 from layer import MSE_Loss_Layer, Cross_Entropy_Loss_Layer
 from tensor import Tensor
-
-
-
-# Import CrossEntropy and Tensor from your own module
 
 class TestCrossEntropy(unittest.TestCase):
     def setUp(self) -> None:
