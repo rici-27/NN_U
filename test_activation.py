@@ -23,7 +23,7 @@ class TestSoftmax(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "forward function does not calculate the correct outputs",
+            "forward softmax function does not calculate the correct outputs",
         )
 
     def test_backward(self) -> None:
@@ -49,7 +49,7 @@ class TestSoftmax(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "backward function does not calculate the correct outputs",
+            "backward softmax function does not calculate the correct outputs",
         )
 
 
@@ -70,7 +70,7 @@ class TestSigmoid(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "forward function does not calculate the correct outputs",
+            "forward sigmoid function does not calculate the correct outputs",
         )
 
     def test_backward(self) -> None:
@@ -88,7 +88,7 @@ class TestSigmoid(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "backward function does not calculate the correct outputs",
+            "backward sigmoid function does not calculate the correct outputs",
         )
 
 
@@ -109,7 +109,7 @@ class TestReLU(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "forward function does not calculate the correct outputs",
+            "forward relu function does not calculate the correct outputs",
         )
 
     def test_backward(self) -> None:
@@ -127,7 +127,7 @@ class TestReLU(unittest.TestCase):
                 rtol=1e-05,
                 atol=1e-08,
             ),
-            "backward function does not calculate the correct outputs",
+            "backward relu function does not calculate the correct outputs",
         )
 
 

@@ -8,7 +8,7 @@ from optimizer import SGDTrainer
 from layer import *
 
 def run_model(train = True):
-    input_layer = Input_Layer_MNIST
+    input_layer = Input_Layer_MNIST(784)
     loss_layer = MSE_Loss_Layer # auf random
     
     # hier einfach mal paal layer anlegen
@@ -25,17 +25,15 @@ def run_model(train = True):
     x_train = x_train /255
     x_test = x_test /255
 
-    # One-Hot-Encoding
-    y_train_onehot = np.zeros(y_train.size, 10, dtype=int)
-    y_train_onehot[np.arange(y_train.size, y_train)] = 1
-
-    y_test_onehot = np.zeros(y_test.size, 10, dtype=int)
-    y_test_onehot[np.arange(y_test.size, y_train)] = 1
+    # One-Hot-Encoding für Trainingsdata
+    y_train_onehot = np.zeros([y_train.size, 10])
+    print(y_train.size)
+    y_train_onehot[np.arange(y_train.size), y_train] = 1
     
     train_data = (x_train, y_train_onehot)
-    test_data = (x_test, y_test_onehot)
+
     
-    network_mnist = Network(input_layer=input_layer, layers = layers, loss_layer=loss_layer)
+    network_mnist = Network(input_layer=input_layer, layers=layers, loss_layer=loss_layer)
     
     trainer = SGDTrainer(0.5, 10)
     
@@ -46,22 +44,15 @@ def run_model(train = True):
     network_mnist.loadParams()
     
     mistakes = 0
-    for (x, y) in (x_test, y_test_onehot):
+    for (x, y) in (x_test, y_test):
         network_mnist.forward(x)
         pred = np.argmax(network_mnist.tensor_list[-1].elements)
-        labels = y_test
-        if pred != labels:
+        if pred != y:
             mistakes =+ 1
     
     print("Accuracy: ", mistakes/len(x_test))    
         
         
-        
-        
-    
-    
-
-    
     
 if __name__ == "__main__":
     run_model()
