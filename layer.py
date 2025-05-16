@@ -6,10 +6,9 @@ from tensor import Tensor
 
 class Layer(ABC):
     
-    def __init__(self, inShape, outShape, layer_type, num):
+    def __init__(self, inShape, outShape, num):
         self.inShape = inShape
         self.outShape = outShape
-        self.layer_type = layer_type
         self.num = num
 
     @abstractmethod
@@ -24,9 +23,8 @@ class Layer(ABC):
 class Input_Layer_MNIST(Layer):
 
     # in den anderen layern init anpassen, wenn notwendig
-    def __init__(self, outShape, layer_type = "input_layer"):
+    def __init__(self, outShape):
         self.outShape = outShape
-        self.layer_type = layer_type
 
     def forward(self, data, outTensor):
         outTensor.elements = data.flatten()
@@ -38,11 +36,10 @@ class Input_Layer_MNIST(Layer):
 # Fully connected Layer
 class FCN_Layer(Layer):
 
-    def __init__(self, inShape, outShape, num, layer_type = "FCN"):
+    def __init__(self, inShape, outShape, num):
         self.inShape = inShape
         self.outShape = outShape
         self.num = num
-        self.layer_type = layer_type
         self.weight = Tensor(np.random.uniform(
             low=-0.5, high=0.5, size=(self.inShape, self.outShape)))
         self.bias = Tensor(np.random.uniform(
@@ -60,10 +57,9 @@ class FCN_Layer(Layer):
 
 class ACT_Layer_sigmoid(Layer):
 
-    def __init__(self, inShape, layer_type = "ACT"):
+    def __init__(self, inShape):
         self.inShape = inShape
         self.outShape = inShape
-        self.layer_type = layer_type
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = sigmoid(inTensor.elements)
@@ -74,10 +70,9 @@ class ACT_Layer_sigmoid(Layer):
 
 class ACT_Layer_ReLu(Layer):
 
-    def __init__(self, inShape, layer_type = "ACT"):
+    def __init__(self, inShape):
         self.inShape = inShape
         self.outShape = inShape
-        self.layer_type = layer_type
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = ReLu(inTensor.elements)
@@ -88,10 +83,9 @@ class ACT_Layer_ReLu(Layer):
 
 class ACT_Layer_tanH(Layer):
 
-    def __init__(self, inShape, layer_type = "ACT"):
+    def __init__(self, inShape):
         self.inShape = inShape
         self.outShape = inShape
-        self.layer_type = layer_type
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = tanH(inTensor.elements)
@@ -102,10 +96,9 @@ class ACT_Layer_tanH(Layer):
 
 class Softmax_Layer(Layer):
 
-    def __init__(self, inShape, layertype = "Softmax"):
+    def __init__(self, inShape):
         self.inShape = inShape
         self.outShape = inShape
-        self.layer_type = layertype
 
     def forward(self, inTensor, outTensor):
         w = np.sum(np.exp(inTensor.elements))
@@ -118,11 +111,6 @@ class Softmax_Layer(Layer):
         inTensor.deltas = np.matmul(outTensor.deltas, derivative_wrt_input)
 
 class MSE_Loss_Layer(Layer):
-
-    # # # weiß nicht ob wir shape größe hier brauchen
-    
-    def __init__(self, layer_type = "Loss"):
-        self.layer_type = layer_type
 
     # outTensor enthält hier die Labels
     # dh der loss wird muss tatsächlich returned werden
@@ -146,3 +134,4 @@ class Cross_Entropy_Loss_Layer(Layer):
     def backward(self, inTensor, outTensor):
         inTensor.deltas = - outTensor.elements / inTensor.elements
         # hier aufpassen dass nicht durch null geteilt wird
+        

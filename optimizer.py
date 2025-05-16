@@ -21,14 +21,16 @@ class SGDTrainer():
             for m in range(len(data[0])):
                 network.forward(data[0][m])
                 # das wahre label wird auch als tensor übergeben an die backprop
-                network.backprop(Tensor(data[0][m]))
-                epoch_loss =+ network.loss.elements[0]
+                network.backprop(Tensor(data[1][m]))
+                epoch_loss += network.loss.elements
 
                 for n in range(len(network.layers)):
                     if type(network.layers[n]) == FCN_Layer:
-                        network.layers[n].weight =- self.learningRate * network.layers[n].weight.deltas
-                        network.layers[n].bias =- self.learningRate * network.layers[n].bias.deltas
+                        network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
+                        network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
 
             end_time = time.time()
             print("Epoch:", epoch, ", Loss:", epoch_loss/len(data[0]))  
+            print("Dauer der Epoche:", round(end_time - start_time, 2), "Sekunden")
+
                     

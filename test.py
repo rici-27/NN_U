@@ -14,7 +14,7 @@ layers.append(FCN_Layer(inShape=2, outShape=1, num = 3))
 layers.append(Softmax_Layer(inShape=1))
 
 
-folder_path = "/Users/ricardabuttmann/Desktop/NN"
+folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 
 
 

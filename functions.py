@@ -3,6 +3,15 @@ import numpy as np
 def sigmoid(x):
     return 1/(1 + np.exp(-x))
 
+def sigmoid(x):
+    return np.piecewise(
+        x,
+        [x > 0],
+        [lambda i: 1 / (1 + np.exp(-i)),
+            lambda i: np.exp(i) / (1 + np.exp(i))],
+    )
+
+
 def ReLu(x):
     return np.max(x, 0)
 
