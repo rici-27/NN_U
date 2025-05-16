@@ -15,18 +15,17 @@ class Network():
         self.loss = Tensor([-1])
         self.tensor_list = []
 
-
     def forward(self, data):
         # kucken wo data eingeht
 
         self.tensor_list = [] # vllt unnötig
-        t0= Tensor(np.zeros([self.input_layer.outShape[0]]))
+        t0= Tensor(np.zeros([self.input_layer.outShape]))
         self.tensor_list.append(t0)
 
-        self.input_layer.forward(input = data, outTensor = self.tensor_list[0])
+        self.input_layer.forward(data, outTensor = self.tensor_list[0])
         
         for layer in self.layers:
-            t = Tensor(np.zeros([layer.outShape[0]]))
+            t = Tensor(np.zeros([layer.outShape]))
             self.tensor_list.append(t)
 
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
@@ -43,19 +42,27 @@ class Network():
             self.layers[i].calculate_delta_weights(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
             
 
+    # passt noch gar nicht
     def saveParams(self, folder_path):
         dict = {}
         for layer in self.layers:
             if layer.layer_type == "FCN":
-                dict[f"FCN_weight_",layer.num] = layer.weight.elements
-                dict[f"FCN_bias_",layer.num] = layer.bias.elements
+                dict[f"weight_{layer.num}"] = layer.weight.elements
+                dict[f"bias_{layer.num}"] = layer.bias.elements
         
         file_path = os.path.join(folder_path, "params.pkl")
         with open(file_path, 'wb') as f:
             pickle.dump(dict, f)
 
-        
 
     def loadParams(self, folder_path):
-        pass
+        file_path = os.path.join(folder_path, "params.pkl")
+        with open(file_path, "rb") as f:
+            parameter = pickle.load(f)  
+        fcn_layers = [layer for layer in self.layers if layer.layer_type == "FCN"] 
+        for (k, layer) in enumerate(fcn_layers):
+            layer.weight.elements = parameter[f"weight_{k+1}"]
+            layer.bias.elements = parameter[f"bias_{k+1}"]
+                
+
 

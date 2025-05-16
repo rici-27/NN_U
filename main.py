@@ -35,9 +35,8 @@ def run_model(train = True):
     
     network_mnist = Network(input_layer=input_layer, layers=layers, loss_layer=loss_layer)
     
-    trainer = SGDTrainer(0.5, 10)
-    
     if train == True:
+        trainer = SGDTrainer(0.5, 10)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams()
         
@@ -52,7 +51,7 @@ def run_model(train = True):
     
     print("Accuracy: ", mistakes/len(x_test))    
         
-        
+    # hier soll noch was ausgegeben und gespeichert werden
     
 if __name__ == "__main__":
     run_model()
