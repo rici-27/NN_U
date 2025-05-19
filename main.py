@@ -66,4 +66,4 @@ def run_model(folder_path, train = True):
 folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 
 
-run_model(folder_path, True)
+run_model(folder_path, False)
