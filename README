@@ -1,0 +1,15 @@
+In der main.py Datei gibt es eine Variable "folder_path" und eine Funktion "run_model()".
+"folder_path" ist der Pfand zu dem Ordner in dem die Parameter nach dem Trainieren als
+.pkl Datei gespeichert werden bzw. (falls das Modell nur getestet werden soll) der Ordner
+aus dem die Parameter geladen werden (-- die Datei heißt params.pkl). "run_model()" hat
+zwei Argumente: "folder_path" und den boolean Train (je nachdem ob trainiert werden soll
+-true oder falls nur getestet werden soll -- false).
+
+Beobachtungen:
+- Cross_entropy_loss lieferte bessere Ergebnisse als der MSE
+- Anfangs haben wir mir konstanter Schrittweite 0.5 gearbeitet, das hat nicht funktioniert,
+  Schrittweite 0.001 war deutlich besser (Fehler zwischen 3 und 4 %) inzwischen bekommen
+  wir mit einer Schrittweite von 0.01 einen Fehler von 2,5%
+- wir hatten auch versucht eine dynamische Schrittweite via Armijo Regel zu implementieren,
+  dies scheiterte (Genauigkeit war zu schlecht)
+
