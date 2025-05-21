@@ -1,8 +1,14 @@
 import numpy as np
 
-def sigmoid(x):
-    return 1/(1 + np.exp(-x))
 
+###     Diverse Hilfsfunktionen die wir zur Implementierung brauchen
+#   sigmoid
+#   ReLu
+#   tanH
+#   softmax
+
+#   Andere Definition der Sigmoid - Funktion für mehr numerische Stabilität
+#   Der Funktionsname wurde aber doppelt verwendet, ist das so gewollt?
 def sigmoid(x):
     return np.piecewise(
         x,
@@ -10,7 +16,6 @@ def sigmoid(x):
         [lambda i: 1 / (1 + np.exp(-i)),
             lambda i: np.exp(i) / (1 + np.exp(i))],
     )
-
 
 def ReLu(x):
     return np.max(x, 0)

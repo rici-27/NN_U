@@ -11,20 +11,19 @@ import argparse
 def run_model(folder_path, train = True):
     input_layer = Input_Layer_MNIST(784)
     loss_layer = Cross_Entropy_Loss_Layer() # auf random
-    
-    # hier einfach mal paal layer anlegen
+
+    # Hier werden nun die verschiedenen Layer angelegt, input und loss layer werden separat behandelt
     
     layers = []
-    layers.append(FCN_Layer(inShape=784, outShape=196, num = 1))
-    layers.append(ACT_Layer_sigmoid(inShape=196))
-    layers.append(FCN_Layer(inShape=196, outShape=98, num = 2))
-    layers.append(ACT_Layer_tanH(inShape=98))
-    layers.append(FCN_Layer(inShape=98, outShape=10, num = 3))
-    layers.append(Softmax_Layer(inShape=10))
+    layers.append(FCN_Layer(inShape = 784, outShape = 196, num = 1))
+    layers.append(ACT_Layer_sigmoid(inShape = 196))
+    layers.append(FCN_Layer(inShape = 196, outShape = 98, num = 2))
+    layers.append(ACT_Layer_tanH(inShape = 98))
+    layers.append(FCN_Layer(inShape = 98, outShape = 10, num = 3))
+    layers.append(Softmax_Layer(inShape = 10))
     
-    network_mnist = Network(input_layer=input_layer, layers=layers, loss_layer=loss_layer)
-    
-    
+    network_mnist = Network(input_layer = input_layer, layers = layers, loss_layer = loss_layer)
+
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     x_train = x_train /255
     x_test = x_test /255
@@ -44,6 +43,7 @@ def run_model(folder_path, train = True):
         network_mnist.loadParams(folder_path)
     
     mistakes = 0
+
     for (x, y) in zip(x_test, y_test):
         network_mnist.forward(x)
         pred = np.argmax(network_mnist.tensor_list[-1].elements)
@@ -63,7 +63,7 @@ def run_model(folder_path, train = True):
 #     run_model(args.train, args.folder_path) 
 
 
-folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
+folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
 
 
-run_model(folder_path, False)
+run_model(folder_path, True)

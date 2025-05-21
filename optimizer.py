@@ -5,6 +5,8 @@ from abc import ABC
 import numpy as np
 import time
 
+### Trainer Klasse zum trainieren des Netzwerks
+
 class SGDTrainer():
 
     def __init__(self, learningRate: float, amountEpochs: int, Shuffle: bool=True):
