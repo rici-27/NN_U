@@ -9,11 +9,14 @@ from layer import *
 import argparse
 
 def run_model(folder_path, train = True):
+
+    # Hier werden nun die verschiedenen Layer angelegt, input und loss layer werden separat behandelt
+    # S: das könnten wir vielleicht mit so einer config.tx file machen, dann ist das ganze etwas einfach
+    # bzw. dann müssen wir nicht jedes Layer einzeln einfügen
+
     input_layer = Input_Layer_MNIST(784)
     loss_layer = Cross_Entropy_Loss_Layer() # auf random
 
-    # Hier werden nun die verschiedenen Layer angelegt, input und loss layer werden separat behandelt
-    
     layers = []
     layers.append(FCN_Layer(inShape = 784, outShape = 196, num = 1))
     layers.append(ACT_Layer_sigmoid(inShape = 196))
@@ -21,9 +24,12 @@ def run_model(folder_path, train = True):
     layers.append(ACT_Layer_tanH(inShape = 98))
     layers.append(FCN_Layer(inShape = 98, outShape = 10, num = 3))
     layers.append(Softmax_Layer(inShape = 10))
-    
+
+    # Netzwerk definieren
     network_mnist = Network(input_layer = input_layer, layers = layers, loss_layer = loss_layer)
 
+    # Testdaten werden geladen und in ein passendes Format gebracht. /255 aufgrund der Graustufen
+    # --> x_test sollen floats zwischen 0 und 1 sein
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     x_train = x_train /255
     x_test = x_test /255
@@ -33,7 +39,8 @@ def run_model(folder_path, train = True):
     y_train_onehot[np.arange(y_train.size), y_train] = 1
     
     train_data = (x_train, y_train_onehot)
-    
+
+    # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
         trainer = SGDTrainer(0.001, 20)
         trainer.optimizing(network_mnist, train_data)
@@ -41,7 +48,9 @@ def run_model(folder_path, train = True):
         
     else:
         network_mnist.loadParams(folder_path)
-    
+
+
+    # Netzwerk testen
     mistakes = 0
 
     for (x, y) in zip(x_test, y_test):

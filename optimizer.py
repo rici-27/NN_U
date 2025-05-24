@@ -5,7 +5,7 @@ from abc import ABC
 import numpy as np
 import time
 
-### Trainer Klasse zum trainieren des Netzwerks
+# Trainer Klasse um das Netzwerk zu trainieren
 
 class SGDTrainer():
 

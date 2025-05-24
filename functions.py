@@ -1,14 +1,6 @@
 import numpy as np
 
-
-###     Diverse Hilfsfunktionen die wir zur Implementierung brauchen
-#   sigmoid
-#   ReLu
-#   tanH
-#   softmax
-
-#   Andere Definition der Sigmoid - Funktion für mehr numerische Stabilität
-#   Der Funktionsname wurde aber doppelt verwendet, ist das so gewollt?
+# Hilfsfunktionen für die Activation Layer und Softmax
 def sigmoid(x):
     return np.piecewise(
         x,

@@ -1,6 +1,6 @@
 ﻿import numpy as np
 
-###     Tensor Klasse - Datentyp zum Abspeichern von Daten
+# Tensor klasse zum Abspeichern von Daten
 
 class Tensor:
     def __init__(self, elements, dtype=np.float64):
