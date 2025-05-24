@@ -19,42 +19,36 @@ def run_model(folder_path, train=True):
 
     # Config file einlesen
 
-    # Das isr nur dafür da, damit man in der Config die Namen abkürzen kann
+    # Abkürzungen für die config Datei
+
     class_map = {
-        "fnc": FCN_Layer,
+        "fcn": FCN_Layer,
         "sigmoid": ACT_Layer_sigmoid,
         "tanh": ACT_Layer_tanH,
         "relu": ACT_Layer_ReLu,
-        "softmax": Softmax_Layer
+        "softmax": Softmax_Layer,
+
     }
 
     # Datei einlesen und Objekte erzeugen
+
     with open("config.txt", "r") as file:
-        content = file.read()
+        for line in file:
+            parts = [part.strip() for part in line.strip().split(",")]
+            class_name = parts[0]
+            args = list(map(int, parts[1:]))
 
-    try:
-        with open("config.txt", "r") as file:
-            for line in file:
-                parts = [part.strip() for part in line.strip().split(",")]
-                class_name = parts[0]
-                args = list(map(int, parts[1:]))
+            if class_name in class_map:
+                obj = class_map[class_name](*args)
+                layers.append(obj)
+            else:
+                print(f"Unbekannte Klasse: {class_name}")
 
-                if class_name in class_map:
-                    obj = class_map[class_name](*args)
-                    layers.append(obj)
-                else:
-                    print(f"Unbekannte Klasse: {class_name}")
-
-    except FileNotFoundError:
-        print("Datei config.txt nicht gefunden.")
-    except Exception as e:
-        print(f"Fehler: {e}")
 
     # Netzwerk definieren
     network_mnist = Network(input_layer=input_layer, layers=layers, loss_layer=loss_layer)
 
     # Testdaten werden geladen und in ein passendes Format gebracht. /255 aufgrund der Graustufen
-    # --> x_test sollen floats zwischen 0 und 1 sein
     (x_train, y_train), (x_test, y_test) = keras.datasets.mnist.load_data()
     x_train = x_train / 255
     x_test = x_test / 255
@@ -67,7 +61,7 @@ def run_model(folder_path, train=True):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(0.001, 2)
+        trainer = SGDTrainer(0.01, 20)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path)
 
@@ -83,20 +77,13 @@ def run_model(folder_path, train=True):
         if pred != y:
             mistakes += 1
 
-    print("Fehlerquote: ", mistakes / len(y_test))
+    err = mistakes / len(y_test)
 
-    # hier soll noch was ausgegeben und gespeichert werden
+    print("Fehlerquote: ", err)
+    print("Accuracy: ", 1-err)
 
-
-# if __name__ == "__main__":
-#     parser = argparse.ArgumentParser(description="Decide mode for NN and insert folder path for parameter", add_help=False)
-#     parser.add_argument("--train", type=bool, default=True, help="train or just evaluate?")
-#     parser.add_argument("--folder_path", type=str, default = r"C:\Users\Anwender\Desktop\Neuronale Netze", help="insert folder path for parameters")
-#     args = parser.parse_args()
-
-#     run_model(args.train, args.folder_path)
-
-
+# Hier passenden Ordnerpfad eingeben wie in README beschrieben
 folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
 
+# Zweites Argument (True/False) gibt an, ob der Trainingsmodus aktiviert werden soll
 run_model(folder_path, True)

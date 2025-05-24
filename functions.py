@@ -1,6 +1,9 @@
 import numpy as np
 
 # Hilfsfunktionen für die Activation Layer und Softmax
+
+# sigmoid Funktion stückweise definiert - für numerische Stabilität - e^x macht Probleme für größe x
+
 def sigmoid(x):
     return np.piecewise(
         x,

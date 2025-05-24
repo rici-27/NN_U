@@ -18,11 +18,9 @@ class SGDTrainer():
         for epoch in range(self.amountEpochs):
             epoch_loss = 0
             start_time = time.time()
-            
-            # data enthält example und label
+
             for m in range(len(data[0])):
                 network.forward(data[0][m])
-                # das wahre label wird auch als tensor übergeben an die backprop
                 network.backprop(Tensor(data[1][m]))
                 epoch_loss += network.loss.elements
 

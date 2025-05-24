@@ -17,7 +17,6 @@ class Network():
         self.tensor_list = []
 
     def forward(self, data):
-        # kucken wo data eingeht
 
         self.tensor_list = [] # vllt unnötig
         t0= Tensor(np.zeros([self.input_layer.outShape]))

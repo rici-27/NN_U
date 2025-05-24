@@ -3,13 +3,22 @@ In der main.py Datei gibt es eine Variable "folder_path" und eine Funktion "run_
 .pkl Datei gespeichert werden bzw. (falls das Modell nur getestet werden soll) der Ordner
 aus dem die Parameter geladen werden (-- die Datei heißt params.pkl). "run_model()" hat
 zwei Argumente: "folder_path" und den boolean Train (je nachdem ob trainiert werden soll
--true oder falls nur getestet werden soll -- false).
+-true oder falls nur getestet werden soll -- false). Die Anzahl der Epochen kann im Objekt-
+aufruf des Trainers in der main.py Datei eingestellt werden.
+
+Wir initialisieren unser Netzwerk mit Hilfe der config.txt Datei, diese ist wie folgt aufgebaut:
+-   jede Zeile repräsentiert einen Layer des Netzwerks (ausgenommen Input und Loss Layer, diese werden
+    noch separat eingefügt)
+-   jede Zeile besteht aus einem string der die Art des Layers bestimmt (fcn, sigmoid, tanh, softmax)
+    gefolgt von den Attributen (inShape, outShape, num) die den jeweiligen Layern noch mit übergeben werden
+-   Die jeweiligen Elemente (Art des Layers und Attribute) werden durch ein Komma getrennt
+
 
 Beobachtungen:
-- Cross_entropy_loss lieferte bessere Ergebnisse als der MSE
-- Anfangs haben wir mir konstanter Schrittweite 0.5 gearbeitet, das hat nicht funktioniert,
-  Schrittweite 0.001 war deutlich besser (Fehler zwischen 3 und 4 %) inzwischen bekommen
-  wir mit einer Schrittweite von 0.01 einen Fehler von 2,5%
-- wir hatten auch versucht eine dynamische Schrittweite via Armijo Regel zu implementieren,
-  dies scheiterte (Genauigkeit war zu schlecht)
+-   Cross_entropy_loss lieferte bessere Ergebnisse als der MSE
+-   Anfangs haben wir mir konstanter Schrittweite 0.5 gearbeitet, das hat nicht funktioniert,
+    Schrittweite 0.001 war deutlich besser (Fehler zwischen 3 und 4 %) inzwischen bekommen
+    wir mit einer Schrittweite von 0.01 einen Fehler von 2,5 - 3%
+-   wir hatten auch versucht eine dynamische Schrittweite via Armijo Regel zu implementieren,
+    dies scheiterte (Genauigkeit war zu schlecht)
 

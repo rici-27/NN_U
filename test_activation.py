@@ -5,7 +5,7 @@ from layer import ACT_Layer_ReLu as ReLU
 from tensor import Tensor
 import numpy as np
 
-# hier funktioniert was nicht
+# Tests wurden für unseren Code angepasst
 
 class TestSoftmax(unittest.TestCase):
     def setUp(self) -> None:

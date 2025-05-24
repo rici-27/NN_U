@@ -3,14 +3,7 @@ from abc import ABC, abstractmethod
 from functions import tanH, ReLu, sigmoid, softmax
 from tensor import Tensor
 
-###     Hier definieren wir die Layer Klassen die wir später verwenden möchten
-#   Abstrakte Klasse : Layer
-#   Input_Layer
-#   FCN_Layer
-#   Diverse Activation_Layer (ACT) (Sigmoid, ReLu, tanH)
-#   Loss_Layer (Cross_Entropy, Mean-squared Error)
-
-
+# Verschiedene Layer die später für das Netzwerk verwendet werden sollen
 
 class Layer(ABC):
     
@@ -30,9 +23,6 @@ class Layer(ABC):
    
 class Input_Layer_MNIST(Layer):
 
-    #   Dieses Layer soll die Daten in ein brauchbares Format bringen
-    #   (in den anderen Layern init anpassen, wenn notwendig) - hast du das schon gemacht?
-
     def __init__(self, outShape):
         self.outShape = outShape
 
@@ -42,13 +32,6 @@ class Input_Layer_MNIST(Layer):
     def backward(self, outTensor, inTensor):
         pass
 
-# Fully connected Layer: y = W * x + b (Linear affine Transformation)
-
-#   inShape = größe der Eingabe
-#   outShape = größe der Ausgabe
-#   num = Nummer des FCN Layer
-#   weight = Matrixgewichte von W --> Erhält beim Instanziieren Zufallswerte zwischen -0.5 und 0.5
-#   bias = Gewichte von b --> Erhält beim Instanziieren Zufallswerte zwischen -0.5 und 0.5
 
 class FCN_Layer(Layer):
 
@@ -60,23 +43,18 @@ class FCN_Layer(Layer):
             low=-0.5, high=0.5, size=(self.inShape, self.outShape)))
         self.bias = Tensor(np.random.uniform(
             low=-0.5, high=0.5, size=(self.outShape)))
-
-#   Im Forward Schritt wird einfach die Linearaffine Transformation durchgeführt
+    def __repr__(self):
+        return f"FCN_Layer(inShape = self.inShape, outShape = self.outShape, num = self.num)"
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = np.matmul(inTensor.elements, self.weight.elements) + self.bias.elements 
 
-#   Im Backward Schritt wird die Ableitung von y nach x ausgerechnet
-
     def backward(self, inTensor, outTensor):
         inTensor.deltas = np.matmul(outTensor.deltas, self.weight.elements.T)
-
-#   Hier werden die Ableitungen der Loss-Funktion nach den Gewichten (Matrixgewicht: Weight, Translation: bias)
 
     def calculate_delta_weights(self, inTensor, outTensor):
         self.weight.deltas = np.outer(inTensor.elements, outTensor.deltas)
         self.bias.deltas = outTensor.deltas
-
 
 
 class ACT_Layer_sigmoid(Layer):
@@ -85,12 +63,14 @@ class ACT_Layer_sigmoid(Layer):
         self.inShape = inShape
         self.outShape = inShape
 
+    def __repr__(self):
+        return f"ACT_Layer_sigmoid(inShape = self.inShape)"
+
     def forward(self, inTensor, outTensor):
         outTensor.elements = sigmoid(inTensor.elements)
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (outTensor.elements * (1 - outTensor.elements)) * outTensor.deltas
-
 
 
 class ACT_Layer_ReLu(Layer):
@@ -99,12 +79,14 @@ class ACT_Layer_ReLu(Layer):
         self.inShape = inShape
         self.outShape = inShape
 
+    def __repr__(self):
+        return f"ACT_Layer_ReLu(inShape = self.inShape, outShape = self.outShape)"
+
     def forward(self, inTensor, outTensor):
         outTensor.elements = ReLu(inTensor.elements)
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (1+np.sign(inTensor.elements))/2 * outTensor.deltas
-
 
 
 class ACT_Layer_tanH(Layer):
@@ -113,12 +95,14 @@ class ACT_Layer_tanH(Layer):
         self.inShape = inShape
         self.outShape = inShape
 
+    def __repr__(self):
+        return f"ACT_Layer_tanH(inShape = self.inShape)"
+
     def forward(self, inTensor, outTensor):
         outTensor.elements = tanH(inTensor.elements)
 
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (1- outTensor.elements * outTensor.elements) * outTensor.deltas
-
 
 
 class Softmax_Layer(Layer):
@@ -127,22 +111,21 @@ class Softmax_Layer(Layer):
         self.inShape = inShape
         self.outShape = inShape
 
+    def __repr__(self):
+        return f"Softmax_Layer(inShape = self.inShape)"
+
     def forward(self, inTensor, outTensor):
         w = np.sum(np.exp(inTensor.elements))
         outTensor.elements = softmax(inTensor.elements, w)
     
     def backward(self, inTensor, outTensor):
-        # das noch effizienter machen :-)
         w = np.sum(np.exp(inTensor.elements))
         derivative_wrt_input = (np.diag(w * np.exp(inTensor.elements)) - np.outer(np.exp(inTensor.elements),  np.exp(inTensor.elements)))/(w**2)
         inTensor.deltas = np.matmul(outTensor.deltas, derivative_wrt_input)
 
 
-
 class MSE_Loss_Layer(Layer):
 
-    # outTensor enthält hier die Labels
-    # dh der loss wird muss tatsächlich returned werden
     def forward(self, inTensor, outTensor):
         return (1/inTensor.elements.shape[0]) * sum((inTensor.elements - outTensor.elements)**2)
 
@@ -156,11 +139,10 @@ class Cross_Entropy_Loss_Layer(Layer):
         self.layer_type = layer_type
 
     def forward(self, inTensor, outTensor):
-        return - sum(np.log(inTensor.elements) * outTensor.elements)
-        # hier aufpassen wenn inTensor.elements zu klein ist
-        # hier wird summiert, brauche shape ?
+        return - sum(np.log(inTensor.elements + 1e-12) * outTensor.elements)
 
     def backward(self, inTensor, outTensor):
-        inTensor.deltas = - outTensor.elements / inTensor.elements
-        # hier aufpassen dass nicht durch null geteilt wird
+        inTensor.deltas = - outTensor.elements / inTensor.elements + 1e-12
+
+
         

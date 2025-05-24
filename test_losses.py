@@ -3,6 +3,8 @@ import unittest
 from layer import MSE_Loss_Layer, Cross_Entropy_Loss_Layer
 from tensor import Tensor
 
+# Tests wurden für unseren Code angepasst
+
 class TestCrossEntropy(unittest.TestCase):
     def setUp(self) -> None:
         self.cross_entropy = Cross_Entropy_Loss_Layer(inShape=4, outShape=1)

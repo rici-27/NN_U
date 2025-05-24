@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from tensor import Tensor
 
-# Vorsicht, nur FCN Test ist hier
+# Tests wurden für unseren Code angepasst
 
 class TestFullyConnectedLayer(unittest.TestCase):
     def setUp(self) -> None:
