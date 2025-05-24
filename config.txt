@@ -1,0 +1,6 @@
+fnc, 784, 196, 1
+sigmoid, 196
+fnc, 196, 98, 2
+tanh, 98
+fnc, 98, 10, 3
+softmax, 10
