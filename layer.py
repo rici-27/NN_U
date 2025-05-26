@@ -1,5 +1,8 @@
 ﻿import numpy as np
 from abc import ABC, abstractmethod
+
+from keras.src.legacy.backend import bias_add
+
 from functions import tanH, ReLu, sigmoid, softmax
 from tensor import Tensor
 
@@ -149,20 +152,35 @@ class Cross_Entropy_Loss_Layer(Layer):
 
 class Conv2DLayer(Layer):
     
-    def __init__():
-        pass
-    
-    def __repr__(self):
-        pass
+    def __init__(self, inShape, outShape, x_length, y_length, depth, amount):
+        self.inShape = inShape
+        self.outShape = outShape
+        self.x_length = x_length
+        self.y_length = y_length
+        self.depth = depth
+        self.amount = amount
+        self.bias = Tensor(np.random.uniform(low = -0.5, high = 0.5, size =(self.amount)))
+        self.weight = Tensor(np.random.uniform(low = -0.5,
+                                               high = 0.5,
+                                               size =(self.x_length, self.y_length, self.depth, self.amount)))
 
-    def forward():
-        pass
+    def __repr__(self):
+        return f"Conv2DLayer(inShape = self.inShape)"
+
+    def forward(self, inTensor, outTensor):
+        for i in range(self.amount):
+            for j in range(inTensor.elements.shape[0] - self.x_length +1):
+                for l in range(inTensor.elements.shape[1] - self.y_length +1):
+                    submatrix = inTensor.elements[j : j + self.x_length, l : l + self.y_length, :]
+                    outTensor.elements[l, j, i] = np.sum(submatrix * self.weight.elements[ : , : , : , i ]   ) + self.bias.elements[i]
+
+    def backward(self, outTensor, inTensor):
 
 
 
 class Pooling2D(Layer):
 
-    def __init__():
+    def __init__(self):
         pass
 
     def __repr__(self):

@@ -20,3 +20,12 @@ def tanH(x):
 
 def softmax(x, w):
     return np.exp(x)/w
+
+
+def convolut(x, k):
+    """length = np.sqrt(x.lenght)
+    matrix = x.reshape(length, length)"""
+
+
+
+    pass
