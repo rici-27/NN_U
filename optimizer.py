@@ -28,6 +28,7 @@ class SGDTrainer():
                     if type(network.layers[n]) == FCN_Layer:
                         network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
                         network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
+                # hier weitere optionen/cases für CNN hinzufügen, oder Methode in layer hinzufügen
 
             end_time = time.time()
             print("Epoch:", epoch, ", Loss:", epoch_loss/len(data[0]))  

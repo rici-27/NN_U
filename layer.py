@@ -145,4 +145,27 @@ class Cross_Entropy_Loss_Layer(Layer):
         inTensor.deltas = - outTensor.elements / inTensor.elements + 1e-12
 
 
+# UB2: Convolution Layer
+
+class Conv2DLayer(Layer):
+    
+    def __init__():
+        pass
+    
+    def __repr__(self):
+        pass
+
+    def forward():
+        pass
+
+
+
+class Pooling2D(Layer):
+
+    def __init__():
+        pass
+
+    def __repr__(self):
+        pass
+
         
