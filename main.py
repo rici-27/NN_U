@@ -7,13 +7,14 @@ import keras
 from optimizer import SGDTrainer
 from layer import *
 import argparse
+import ast
 
 
-def run_model(folder_path, train=True):
+def run_model(folder_path, train=True, type = "FCN"):
 
     # Layer für das Netzwerk erstellen
 
-    input_layer = Input_Layer_MNIST(784)
+    input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) # hier unterscheidung ob FCN oder CNN einfügen
     loss_layer = Cross_Entropy_Loss_Layer()  # auf random
     layers = []
 
@@ -27,7 +28,8 @@ def run_model(folder_path, train=True):
         "tanh": ACT_Layer_tanH,
         "relu": ACT_Layer_ReLu,
         "softmax": Softmax_Layer,
-
+        "cnn": Conv2DLayer,
+        "flatten": Flatten
     }
 
     # Datei einlesen und Objekte erzeugen
@@ -86,4 +88,4 @@ def run_model(folder_path, train=True):
 folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 
 # Zweites Argument (True/False) gibt an, ob der Trainingsmodus aktiviert werden soll
-run_model(folder_path, True)
+run_model(folder_path, True, type)

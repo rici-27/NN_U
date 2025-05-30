@@ -19,13 +19,14 @@ class Network():
     def forward(self, data):
 
         self.tensor_list = [] # vllt unnötig
-        t0= Tensor(np.zeros([self.input_layer.outShape]))
+        t0= Tensor(np.zeros(self.input_layer.outShape)) # hier aufpassen bei fcn wieder anders
         self.tensor_list.append(t0)
 
         self.input_layer.forward(data, outTensor = self.tensor_list[0])
         
         for layer in self.layers:
-            t = Tensor(np.zeros([layer.outShape]))
+            
+            t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
             self.tensor_list.append(t)
             
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
@@ -48,8 +49,11 @@ class Network():
         dict = {}
         for layer in self.layers:
             if type(layer) == FCN_Layer: # das hier noch ändern und layer_type entfernen
-                dict[f"weight_{layer.num}"] = layer.weight.elements
-                dict[f"bias_{layer.num}"] = layer.bias.elements
+                dict[f"fcn_weight_{layer.num}"] = layer.weight.elements
+                dict[f"fcn_bias_{layer.num}"] = layer.bias.elements
+            if type(layer) == Conv2DLayer:
+                dict[f"cnn_weight_{layer.num}"] = layer.weight.elements
+                dict[f"cnn_bias_{layer.num}"] = layer.bias.elements
         
         file_path = os.path.join(folder_path, "params.pkl")
         
@@ -61,10 +65,16 @@ class Network():
         file_path = os.path.join(folder_path, "params.pkl")
         with open(file_path, "rb") as f:
             parameter = pickle.load(f)  
+            
         fcn_layers = [layer for layer in self.layers if type(layer) == FCN_Layer] 
         for (k, layer) in enumerate(fcn_layers):
-            layer.weight.elements = parameter[f"weight_{k+1}"]
-            layer.bias.elements = parameter[f"bias_{k+1}"]
+            layer.weight.elements = parameter[f"fcn_weight_{k+1}"]
+            layer.bias.elements = parameter[f"fcn_bias_{k+1}"]
+            
+        cnn_layers = [layer for layer in self.layers if type(layer) == Conv2DLayer] 
+        for (k, layer) in enumerate(cnn_layers):
+            layer.weight.elements = parameter[f"cnn_weight_{k+1}"]
+            layer.bias.elements = parameter[f"cnn_bias_{k+1}"]
                 
 
 
