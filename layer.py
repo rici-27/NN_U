@@ -24,7 +24,7 @@ class Layer(ABC):
         pass 
     
    
-class Input_Layer_MNIST(Layer):
+class Input_Layer_MNIST_FCN(Layer):
 
     def __init__(self, outShape):
         self.outShape = outShape
@@ -34,6 +34,11 @@ class Input_Layer_MNIST(Layer):
 
     def backward(self, outTensor, inTensor):
         pass
+    
+# neue Input Layer für CNN:
+
+class Input_Layer_MNIST_CNN(Layer):
+    pass
 
 
 class FCN_Layer(Layer):
@@ -152,12 +157,12 @@ class Cross_Entropy_Loss_Layer(Layer):
 
 class Conv2DLayer(Layer):
     
-    def __init__(self, inShape, outShape, x_length, y_length, depth, amount):
+    def __init__(self, inShape, x_length, y_length, amount):
         self.inShape = inShape
-        self.outShape = outShape
+        self.outShape = np.array([self.inShape[0] - x_length + 1, self.inShape[1] - y_length + 1, amount])
         self.x_length = x_length
         self.y_length = y_length
-        self.depth = depth
+        self.depth = inShape[-1]
         self.amount = amount
         self.bias = Tensor(np.random.uniform(low = -0.5, high = 0.5, size =(self.amount)))
         self.weight = Tensor(np.random.uniform(low = -0.5,
@@ -165,17 +170,18 @@ class Conv2DLayer(Layer):
                                                size =(self.x_length, self.y_length, self.depth, self.amount)))
 
     def __repr__(self):
-        return f"Conv2DLayer(inShape = self.inShape)"
+        return f"Conv2DLayer(inShape = self.inShape, x_length = self.x_length, y_length = self.y_length, amount = self.amount)"
 
     def forward(self, inTensor, outTensor):
-        for i in range(self.amount):
-            for j in range(inTensor.elements.shape[0] - self.x_length +1):
-                for l in range(inTensor.elements.shape[1] - self.y_length +1):
-                    submatrix = inTensor.elements[j : j + self.x_length, l : l + self.y_length, :]
-                    outTensor.elements[l, j, i] = np.sum(submatrix * self.weight.elements[ : , : , : , i ]   ) + self.bias.elements[i]
+        for k in range(self.amount):
+            for i in range(self.outShape[0]):
+                for j in range(self.outShape[1]):
+                    
+                    submatrix = inTensor.elements[i : i + self.x_length, j : j + self.y_length, :]
+                    outTensor.elements[i, j, k] = np.sum(submatrix * self.weight.elements[ :, :, :, k]) + self.bias.elements[k]
 
     def backward(self, outTensor, inTensor):
-
+        pass
 
 
 class Pooling2D(Layer):
@@ -187,3 +193,5 @@ class Pooling2D(Layer):
         pass
 
         
+class Flatten(Layer):
+    pass
