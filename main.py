@@ -86,6 +86,9 @@ def run_model(folder_path, train=True, type = "FCN"):
 
 # Hier passenden Ordnerpfad eingeben wie in README beschrieben
 folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
+#folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
+#folder_path = f"/Users/ricardabuttmann/Desktop/NN"
+
 
 # Zweites Argument (True/False) gibt an, ob der Trainingsmodus aktiviert werden soll
 run_model(folder_path, True, type)
