@@ -55,7 +55,7 @@ class FCN_Layer(Layer):
         self.outShape = outShape
         self.num = num
         self.weight = Tensor(np.random.uniform(
-            low=-0.5, high=0.5, size=(self.inShape, self.outShape)))
+            low=-0.5, high=0.5, size=(self.inShape, self.outShape))) 
         self.bias = Tensor(np.random.uniform(
             low=-0.5, high=0.5, size=(self.outShape)))
     def __repr__(self):
