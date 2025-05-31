@@ -42,7 +42,7 @@ class Input_Layer_MNIST_CNN(Layer):
         self.outShape = outShape
 
     def forward(self, data, outTensor):
-        outTensor.elements = data
+        outTensor.elements = data.reshape(28, 28, 1)
 
     def backward(self, outTensor, inTensor):
         pass

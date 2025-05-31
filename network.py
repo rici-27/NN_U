@@ -19,14 +19,29 @@ class Network():
     def forward(self, data):
 
         self.tensor_list = [] # vllt unnötig
-        t0= Tensor(np.zeros(self.input_layer.outShape)) # hier aufpassen bei fcn wieder anders
+        if np.isscalar(self.input_layer.outShape):
+                shape = (int(self.input_layer.outShape),)
+        else:
+            shape = tuple(self.input_layer.outShape)
+
+        t = Tensor(np.zeros(self.input_layer.outShape))
+        
+        t0= Tensor(np.zeros(shape)) # hier aufpassen bei fcn wieder anders
         self.tensor_list.append(t0)
 
         self.input_layer.forward(data, outTensor = self.tensor_list[0])
         
         for layer in self.layers:
             
-            t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
+            # Fallunterscheidung: Wenn shape ein Skalar ist, forme es zu Tupel um
+            if np.isscalar(layer.outShape):
+                shape = (int(layer.outShape),)
+            else:
+                shape = tuple(layer.outShape)
+
+            t = Tensor(np.zeros(shape))
+
+            #t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
             self.tensor_list.append(t)
             
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])

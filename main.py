@@ -34,7 +34,7 @@ def run_model(folder_path, train=True, type = "FCN"):
 
     # Datei einlesen und Objekte erzeugen
 
-    with open("config.txt", "r") as file:
+    with open("config1.txt", "r") as file:
         for line in file:
             parts = [part.strip() for part in line.strip().split(",")]
             class_name = parts[0]
@@ -63,7 +63,7 @@ def run_model(folder_path, train=True, type = "FCN"):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(0.01, 20)
+        trainer = SGDTrainer(0.01, 5)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path)
 
