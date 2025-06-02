@@ -34,7 +34,6 @@ class Network():
         for layer in self.layers:
 
             # Fallunterscheidung: Wenn shape ein Skalar ist, forme es zu Tupel um
-            print(layer.outShape)
             if np.isscalar(layer.outShape):
                 shape = (int(layer.outShape),)
             else:
@@ -44,8 +43,6 @@ class Network():
 
             #t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
             self.tensor_list.append(t)
-            if type(layer) == FCN_Layer:
-                print (layer.weight)
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
 
 
@@ -62,30 +59,30 @@ class Network():
                 self.layers[i].calculate_delta_weights(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
             
 
-    def saveParams(self, folder_path, type):
+    def saveParams(self, folder_path, net):
         dict = {}
         for layer in self.layers:
-            if type(layer) == FCN_Layer: # das hier noch ändern und layer_type entfernen
+            if type(layer) == FCN_Layer:
                 dict[f"fcn_weight_{layer.num}"] = layer.weight.elements
                 dict[f"fcn_bias_{layer.num}"] = layer.bias.elements
             if type(layer) == Conv2DLayer:
                 dict[f"cnn_weight_{layer.num}"] = layer.weight.elements
                 dict[f"cnn_bias_{layer.num}"] = layer.bias.elements
         
-        if type == "FCN":
+        if net == "FCN":
             file_path = os.path.join(folder_path, "params_fcn.pkl")
-        elif type == "CNN":
+        elif net == "CNN":
             file_path = os.path.join(folder_path, "params_cnn.pkl")
         
         with open(file_path, 'wb') as f:
             pickle.dump(dict, f)
 
 
-    def loadParams(self, folder_path, type):
+    def loadParams(self, folder_path, net):
 
-        if type == "FCN":
+        if net == "FCN":
             file_path = os.path.join(folder_path, "params_fcn.pkl")
-        elif type == "CNN":
+        elif net == "CNN":
             file_path = os.path.join(folder_path, "params_cnn.pkl")
 
         with open(file_path, "rb") as f:

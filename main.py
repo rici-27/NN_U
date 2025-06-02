@@ -10,7 +10,7 @@ import argparse
 import ast
 
 
-def run_model(folder_path, train=True, type = "FCN"):
+def run_model(folder_path, train=True, net = "FCN"):
 
     # Abkürzungen für die config Datei
     class_map = {
@@ -26,8 +26,8 @@ def run_model(folder_path, train=True, type = "FCN"):
 
     # Layer für das Netzwerk erstellen
 
-    if type == "FCN":
-        input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1]))
+    if net == "FCN":
+        input_layer = Input_Layer_MNIST_FCN(np.array([28, 28, 1]))
         loss_layer = Cross_Entropy_Loss_Layer()  
         layers = []
 
@@ -44,7 +44,7 @@ def run_model(folder_path, train=True, type = "FCN"):
                 else:
                     print(f"Unbekannte Klasse: {class_name}")
 
-    if type == "CNN":
+    if net == "CNN":
         input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
         loss_layer = Cross_Entropy_Loss_Layer() 
         layers = []
@@ -81,10 +81,10 @@ def run_model(folder_path, train=True, type = "FCN"):
     if train == True:
         trainer = SGDTrainer(0.01, 2)
         trainer.optimizing(network_mnist, train_data)
-        network_mnist.saveParams(folder_path, type)
+        network_mnist.saveParams(folder_path, net)
 
     else:
-        network_mnist.loadParams(folder_path, type)
+        network_mnist.loadParams(folder_path, net)
 
     # Netzwerk testen
     mistakes = 0
