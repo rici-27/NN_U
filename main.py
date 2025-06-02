@@ -12,16 +12,7 @@ import ast
 
 def run_model(folder_path, train=True, type = "FCN"):
 
-    # Layer für das Netzwerk erstellen
-
-    input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) # hier unterscheidung ob FCN oder CNN einfügen
-    loss_layer = Cross_Entropy_Loss_Layer()  # auf random
-    layers = []
-
-    # Config file einlesen
-
     # Abkürzungen für die config Datei
-
     class_map = {
         "fcn": FCN_Layer,
         "sigmoid": ACT_Layer_sigmoid,
@@ -29,22 +20,47 @@ def run_model(folder_path, train=True, type = "FCN"):
         "relu": ACT_Layer_ReLu,
         "softmax": Softmax_Layer,
         "cnn": Conv2DLayer,
+        "maxpool": Pooling2D,
         "flatten": Flatten
     }
 
-    # Datei einlesen und Objekte erzeugen
+    # Layer für das Netzwerk erstellen
 
-    with open("config1.txt", "r") as file:
-        for line in file:
-            parts = [part.strip() for part in line.strip().split(",")]
-            class_name = parts[0]
-            args = list(map(int, parts[1:]))
+    if type == "FCN":
+        input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1]))
+        loss_layer = Cross_Entropy_Loss_Layer()  
+        layers = []
 
-            if class_name in class_map:
-                obj = class_map[class_name](*args)
-                layers.append(obj)
-            else:
-                print(f"Unbekannte Klasse: {class_name}")
+        # Datei einlesen und Objekte erzeugen
+        with open("config2.txt", "r") as file:
+            for line in file:
+                parts = [part.strip() for part in line.strip().split(",")]
+                class_name = parts[0]
+                args = list(map(int, parts[1:]))
+
+                if class_name in class_map:
+                    obj = class_map[class_name](*args)
+                    layers.append(obj)
+                else:
+                    print(f"Unbekannte Klasse: {class_name}")
+
+    if type == "CNN":
+        input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
+        loss_layer = Cross_Entropy_Loss_Layer() 
+        layers = []
+
+        # Datei einlesen und Objekte erzeugen
+        with open("config1.txt", "r") as file:
+            for line in file:
+                parts = [part.strip() for part in line.strip().split(",")]
+                class_name = parts[0]
+                args = list(map(int, parts[1:]))
+
+                if class_name in class_map:
+                    obj = class_map[class_name](*args)
+                    layers.append(obj)
+                else:
+                    print(f"Unbekannte Klasse: {class_name}")
 
 
     # Netzwerk definieren
@@ -63,12 +79,12 @@ def run_model(folder_path, train=True, type = "FCN"):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(0.01, 5)
+        trainer = SGDTrainer(0.01, 2)
         trainer.optimizing(network_mnist, train_data)
-        network_mnist.saveParams(folder_path)
+        network_mnist.saveParams(folder_path, type)
 
     else:
-        network_mnist.loadParams(folder_path)
+        network_mnist.loadParams(folder_path, type)
 
     # Netzwerk testen
     mistakes = 0
@@ -90,5 +106,6 @@ folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 #folder_path = f"/Users/ricardabuttmann/Desktop/NN"
 
 
-# Zweites Argument (True/False) gibt an, ob der Trainingsmodus aktiviert werden soll
-run_model(folder_path, True, type)
+# Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
+# Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
+run_model(folder_path, True, "FCN")

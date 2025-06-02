@@ -32,8 +32,9 @@ class Network():
         self.input_layer.forward(data, outTensor = self.tensor_list[0])
         
         for layer in self.layers:
-            
+
             # Fallunterscheidung: Wenn shape ein Skalar ist, forme es zu Tupel um
+            print(layer.outShape)
             if np.isscalar(layer.outShape):
                 shape = (int(layer.outShape),)
             else:
@@ -43,7 +44,8 @@ class Network():
 
             #t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
             self.tensor_list.append(t)
-            
+            if type(layer) == FCN_Layer:
+                print (layer.weight)
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
 
 
@@ -60,7 +62,7 @@ class Network():
                 self.layers[i].calculate_delta_weights(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
             
 
-    def saveParams(self, folder_path):
+    def saveParams(self, folder_path, type):
         dict = {}
         for layer in self.layers:
             if type(layer) == FCN_Layer: # das hier noch ändern und layer_type entfernen
@@ -70,14 +72,22 @@ class Network():
                 dict[f"cnn_weight_{layer.num}"] = layer.weight.elements
                 dict[f"cnn_bias_{layer.num}"] = layer.bias.elements
         
-        file_path = os.path.join(folder_path, "params.pkl")
+        if type == "FCN":
+            file_path = os.path.join(folder_path, "params_fcn.pkl")
+        elif type == "CNN":
+            file_path = os.path.join(folder_path, "params_cnn.pkl")
         
         with open(file_path, 'wb') as f:
             pickle.dump(dict, f)
 
 
-    def loadParams(self, folder_path):
-        file_path = os.path.join(folder_path, "params.pkl")
+    def loadParams(self, folder_path, type):
+
+        if type == "FCN":
+            file_path = os.path.join(folder_path, "params_fcn.pkl")
+        elif type == "CNN":
+            file_path = os.path.join(folder_path, "params_cnn.pkl")
+
         with open(file_path, "rb") as f:
             parameter = pickle.load(f)  
             

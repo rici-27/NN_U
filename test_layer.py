@@ -5,126 +5,126 @@ import unittest
 import numpy as np
 from tensor import Tensor
 
+# Tests wurden für unsere Layer angepasst
 
-""""""" anpassung und cnn und pooling testen """
+class TestPooling2D(unittest.TestCase):
+    def test_max_pooling_forward_backward(self):
+        in_tensor = Tensor(elements=np.array([
+            [
+                [1, 1],
+                [2, 2],
+                [3, 3],
+                [4, 4]
+            ],
+            [
+                [5, 5],
+                [6, 6],
+                [7, 7],
+                [8, 8]
+            ],
+            [
+                [9, 9],
+                [10, 10],
+                [11, 11],
+                [12, 12]
+            ],
+            [
+                [13, 13],
+                [14, 14],
+                [15, 15],
+                [16, 16]
+            ]
+        ]))
+        out_tensor = Tensor(np.zeros([2, 2, 2]))
+        pool_layer = Pooling2D(inShape1=4, inShape2=4, inShape3=2,
+                               outShape1 = 2, outShape2 = 2, outShape3=2, x_length = 2, y_length=2, stride=np.array([2, 2]))
 
-# class TestPooling2D(unittest.TestCase):
-#     def test_max_pooling_forward_backward(self):
-#         in_tensor = Tensor(elements=np.array([
-#             [
-#                 [1, 1],
-#                 [2, 2],
-#                 [3, 3],
-#                 [4, 4]
-#             ],
-#             [
-#                 [5, 5],
-#                 [6, 6],
-#                 [7, 7],
-#                 [8, 8]
-#             ],
-#             [
-#                 [9, 9],
-#                 [10, 10],
-#                 [11, 11],
-#                 [12, 12]
-#             ],
-#             [
-#                 [13, 13],
-#                 [14, 14],
-#                 [15, 15],
-#                 [16, 16]
-#             ]
-#         ]))
-#         out_tensor = Tensor(shape=np.array([2, 2, 2]))
-#         pool_layer = Pooling2D(kernel_size=np.array([2, 2]), stride=np.array([2, 2]), pooling_type=PoolingType.MAX, in_shape=np.array([4, 4, 2]), out_shape=np.array([2, 2, 2]))
+        pool_layer.forward(in_tensor, out_tensor)
+        expected_forward_result = np.array([
+            [
+                [6, 6],
+                [8, 8]
+            ],
+            [
+                [14, 14],
+                [16, 16]
+            ]
+        ])
+        np.testing.assert_array_almost_equal(out_tensor.elements, expected_forward_result)
 
-#         pool_layer.forward([in_tensor], [out_tensor])
-#         expected_forward_result = np.array([
-#             [
-#                 [6, 6],
-#                 [8, 8]
-#             ],
-#             [
-#                 [14, 14],
-#                 [16, 16]
-#             ]
-#         ])
-#         np.testing.assert_array_almost_equal(out_tensor.elements, expected_forward_result)
+        out_tensor.deltas = np.ones((2, 2, 2))
+        pool_layer.backward(out_tensor, in_tensor)
+        expected_backward_result = np.array([
+                    [
+                        [0, 0],
+                        [0, 0],
+                        [0, 0],
+                        [0, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [1, 1],
+                        [0, 0],
+                        [1, 1]
+                    ],
+                    [
+                        [0, 0],
+                        [0, 0],
+                        [0, 0],
+                        [0, 0]
+                    ],
+                    [
+                        [0, 0],
+                        [1, 1],
+                        [0, 0],
+                        [1, 1]
+                    ]
+                ])
 
-#         out_tensor.deltas = np.ones((2, 2, 2))
-#         pool_layer.backward([out_tensor], [in_tensor])
-#         expected_backward_result = np.array([
-#                     [
-#                         [0, 0],
-#                         [0, 0],
-#                         [0, 0],
-#                         [0, 0]
-#                     ],
-#                     [
-#                         [0, 0],
-#                         [1, 1],
-#                         [0, 0],
-#                         [1, 1]
-#                     ],
-#                     [
-#                         [0, 0],
-#                         [0, 0],
-#                         [0, 0],
-#                         [0, 0]
-#                     ],
-#                     [
-#                         [0, 0],
-#                         [1, 1],
-#                         [0, 0],
-#                         [1, 1]
-#                     ]
-#                 ])
+        np.testing.assert_array_almost_equal(in_tensor.deltas, expected_backward_result)
 
-#         np.testing.assert_array_almost_equal(in_tensor.deltas, expected_backward_result)
+class TestFullyConnectedLayer(unittest.TestCase):
+    def setUp(self) -> None:
+        self.weight_matrix = Tensor(
+            elements=np.array([[3, 5], [4, 6]])
+        )
+        self.bias = Tensor(elements=np.array([0.5, 0.6]))
+        self.fc_layer = FCN_Layer(inShape=2, outShape=2, num=1)
+        self.fc_layer.weight = self.weight_matrix
+        self.fc_layer.bias = self.bias
 
-# class TestFullyConnectedLayer(unittest.TestCase):
-#     def setUp(self) -> None:
-#         self.weight_matrix = Tensor(
-#             elements=np.array([[3, 5], [4, 6]])
-#         )
-#         self.bias = Tensor(elements=np.array([0.5, 0.6]))
-#         self.fc_layer = FCN_Layer(inShape=2, outShape=2, num=1)
-#         self.fc_layer.weight = self.weight_matrix
-#         self.fc_layer.bias = self.bias
+    def test_forward(self) -> None:
+        in_tensors = Tensor(elements=np.array([1, 2]))
+        out_tensors = Tensor(elements=np.array([0, 0]))
+        self.fc_layer.forward(inTensor = in_tensors, outTensor = out_tensors)
+        self.assertTrue(
+            np.array_equal(out_tensors.elements, np.array([11.5, 17.6])),
+            "FC Layer forward function does not calculate the correct outputs",
+        )
 
-#     def test_forward(self) -> None:
-#         in_tensors = Tensor(elements=np.array([1, 2]))
-#         out_tensors = Tensor(elements=np.array([0, 0]))
-#         self.fc_layer.forward(inTensor = in_tensors, outTensor = out_tensors)
-#         self.assertTrue(
-#             np.array_equal(out_tensors.elements, np.array([11.5, 17.6])),
-#             "FC Layer forward function does not calculate the correct outputs",
-#         )
+    def test_backward(self) -> None:
+        in_tensors = Tensor(elements=np.array([1, 2]))
+        out_tensors = Tensor(elements=np.array([0, 0]))
+        out_tensors.deltas = np.array([8, 9])
+        self.fc_layer.backward(outTensor=out_tensors, inTensor=in_tensors)
+        self.assertTrue(
+            np.array_equal(in_tensors.deltas, np.array([69, 86])),
+            "FC Layer backward function does not calculate the correct outputs",
+        )
 
-#     def test_backward(self) -> None:
-#         in_tensors = Tensor(elements=np.array([1, 2]))
-#         out_tensors = Tensor(elements=np.array([0, 0]))
-#         out_tensors.deltas = np.array([8, 9])
-#         self.fc_layer.backward(outTensor=out_tensors, inTensor=in_tensors)
-#         self.assertTrue(
-#             np.array_equal(in_tensors.deltas, np.array([69, 86])),
-#             "FC Layer backward function does not calculate the correct outputs",
-#         )
-
-#     def test_calculate_deltas(self) -> None:
-#         in_tensors = Tensor(elements=np.array([1, 2]))
-#         out_tensors = Tensor(elements=np.array([0, 0]))
-#         out_tensors.deltas = np.array([8, 9])
-#         self.fc_layer.calculate_delta_weights(outTensor = out_tensors, inTensor = in_tensors)
-#         self.assertTrue(
-#             np.array_equal(self.weight_matrix.deltas, np.array([[8, 9], [16, 18]])),
-#             "FCLayer calculate delta weights function does not calculate the correct deltas for the weight matrix",
-#         )
-#         self.assertTrue(
-#             np.array_equal(self.bias.deltas, out_tensors.deltas),
-#             "calculate delta weights function does not calculate the correct deltas for the bias",
-#         )
+    def test_calculate_deltas(self) -> None:
+        in_tensors = Tensor(elements=np.array([1, 2]))
+        out_tensors = Tensor(elements=np.array([0, 0]))
+        out_tensors.deltas = np.array([8, 9])
+        self.fc_layer.calculate_delta_weights(outTensor = out_tensors, inTensor = in_tensors)
+        self.assertTrue(
+            np.array_equal(self.weight_matrix.deltas, np.array([[8, 9], [16, 18]])),
+            "FCLayer calculate delta weights function does not calculate the correct deltas for the weight matrix",
+        )
+        self.assertTrue(
+            np.array_equal(self.bias.deltas, out_tensors.deltas),
+            "calculate delta weights function does not calculate the correct deltas for the bias",
+        )
 
 
 class TestConv2DLayer(unittest.TestCase):

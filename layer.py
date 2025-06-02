@@ -1,8 +1,5 @@
 ﻿import numpy as np
 from abc import ABC, abstractmethod
-
-from keras.src.legacy.backend import bias_add
-
 from functions import tanH, ReLu, sigmoid, softmax, convolut
 from tensor import Tensor
 
@@ -160,8 +157,6 @@ class Cross_Entropy_Loss_Layer(Layer):
         inTensor.deltas = - outTensor.elements / inTensor.elements + 1e-12
 
 
-# UB2: Convolution Layer
-
 class Conv2DLayer(Layer):
     
     def __init__(self, inShape1, inShape2, inShape3, x_length, y_length, amount, num):
@@ -212,28 +207,55 @@ class Conv2DLayer(Layer):
             self.bias.deltas[k] = np.sum(outTensor.deltas[:,:,k])
 
 
-
 class Pooling2D(Layer):
-    
-    def __init__(self):
-        pass
+    def __init__(self, inShape1, inShape2, inShape3, outShape1, outShape2, outShape3, x_length, y_length, axis=0, stride=(1, 1)):
+        self.inShape = np.array([inShape1, inShape2, inShape3])
+        self.outShape = np.array([outShape1, outShape2, outShape3])
+        self.kernel_size = np.array([x_length, y_length])
+        self.axis = axis
+        if self.axis:
+            self.order = 'C'
+        else:
+            self.order = 'F'
+        self.stride = stride
+        self.num_channels = self.inShape[-1]
+        self.mask = np.zeros((self.num_channels, self.outShape[0] * self.outShape[1]), dtype=int)
+        self.inDeltas_flat = np.zeros((self.inShape[0] * self.inShape[1],))
+        self.outDeltas_flat = np.zeros((self.outShape[0] * self.outShape[1],))
 
-    def __repr__(self):
-        pass
+    def forward(self, inTensor, outTensor):
+        a0, a1 = self.axis, abs(self.axis - 1)
+        for j in range(self.outShape[a1]):
+            for i in range(self.outShape[a0]):
+                start_i, start_j = i * self.stride[a0], j * self.stride[a1]
+                end_i, end_j = start_i + self.kernel_size[a0], start_j + self.kernel_size[a1]
+                for ch in range(0, self.num_channels):
+                    outTensor.elements[i, j, ch] = np.max(inTensor.elements[start_i:end_i, start_j:end_j, ch])
+                    relativ_index = np.argmax(inTensor.elements[start_i:end_i, start_j:end_j, ch].flatten(order=self.order))
+                    self.mask[ch, i + j* self.outShape[a0]] = start_i + start_j*(self.inShape[a0]) + relativ_index + relativ_index//self.kernel_size[a0] * (self.inShape[a0] - self.kernel_size[a0])
 
-        
+    def backward(self, outTensor, inTensor):
+        for ch in range(0, self.num_channels):
+            self.inDeltas_flat *= 0
+            self.outDeltas_flat = outTensor.deltas[:, :, ch].flatten(order=self.order)
+            self.inDeltas_flat[self.mask[ch,:]] = self.outDeltas_flat
+            inTensor.deltas[:, :, ch] = np.reshape(self.inDeltas_flat, (self.inShape[0], self.inShape[1]))
+
+
 class Flatten(Layer):
     
     def __init__(self, inShape1, inShape2, inShape3, outShape):
         self.inShape = np.array([inShape1, inShape2, inShape3])
         self.outShape = outShape
-        
+    
+    def __repr__(self):
+        return f"Flatten(inShape1 = self.inShape1, inShape2 = self.inShape2, inShape3= self.inShape3)"
+
     def forward(self, inTensor, outTensor):
         outTensor.elements = inTensor.elements.flatten()
         
     def backward(self, inTensor, outTensor):
-        inTensor.deltas = outTensor.deltas.reshape(self.inShape[0], self.inShape[1], 1)
+        inTensor.deltas = outTensor.deltas.reshape(*self.inShape)
+
         
-    def calculate_delta_weights():
-        pass
 
