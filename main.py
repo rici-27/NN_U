@@ -13,7 +13,7 @@ def run_model(folder_path, train=True, net = "FCN"):
 
     if net == "FCN":
         input_layer = Input_Layer_MNIST_FCN(np.array([28, 28, 1]))
-        loss_layer = Cross_Entropy_Loss_Layer()  
+        loss_layer = Cross_Entropy_Loss_Layer(10)  
         layers = []
 
         fcn1 = FCN_Layer(784, 196, 1)
@@ -36,7 +36,7 @@ def run_model(folder_path, train=True, net = "FCN"):
         
     if net == "CNN":
         input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
-        loss_layer = Cross_Entropy_Loss_Layer() 
+        loss_layer = Cross_Entropy_Loss_Layer(10) 
         layers = []
 
         cnn1 = Conv2DLayer(28, 28, 1, 2, 2, 3, 1)
@@ -124,4 +124,4 @@ folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
 # Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
-run_model(folder_path, True, "FCN")
+run_model(folder_path, False, "FCN")

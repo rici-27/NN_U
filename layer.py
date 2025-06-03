@@ -138,6 +138,10 @@ class Softmax_Layer(Layer):
 
 class MSE_Loss_Layer(Layer):
 
+    def __init__(self, inShape, outShape=1):
+        self.inShape = inShape
+        self.outShape = outShape
+
     def forward(self, inTensor, outTensor):
         return (1/inTensor.elements.shape[0]) * sum((inTensor.elements - outTensor.elements)**2)
 
@@ -147,9 +151,10 @@ class MSE_Loss_Layer(Layer):
 
 class Cross_Entropy_Loss_Layer(Layer):
 
-    def __init__(self, inShape, outShape):
+    def __init__(self, inShape, outShape=1):
         self.inShape = inShape
         self.outShape = outShape
+
 
     def forward(self, inTensor, outTensor):
         return - sum(np.log(inTensor.elements + 1e-12) * outTensor.elements)

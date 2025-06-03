@@ -90,7 +90,7 @@ class TestCrossEntropy(unittest.TestCase):
 
 class TestMeanSquaredError(unittest.TestCase):
     def setUp(self) -> None:
-        self.mean_squared_error = MSE_Loss_Layer(inShape=4, outShape=1, num=1)
+        self.mean_squared_error = MSE_Loss_Layer(inShape=4, outShape=1)
     
     def test_forward(self) -> None:
         test_cases = [

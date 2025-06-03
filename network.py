@@ -33,15 +33,15 @@ class Network():
         
         for layer in self.layers:
 
-            # Fallunterscheidung: Wenn shape ein Skalar ist, forme es zu Tupel um
+            # das hier noch überarbeiten!
+            
             if np.isscalar(layer.outShape):
                 shape = (int(layer.outShape),)
             else:
                 shape = tuple(layer.outShape)
 
             t = Tensor(np.zeros(shape))
-            
-            #t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
+
             self.tensor_list.append(t)
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
 
