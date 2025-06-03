@@ -96,7 +96,7 @@ class ACT_Layer_ReLu(Layer):
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = ReLu(inTensor.elements)
-
+        
     def backward(self, inTensor, outTensor):
         inTensor.deltas = (1+np.sign(inTensor.elements))/2 * outTensor.deltas
 
@@ -240,6 +240,7 @@ class Pooling2D(Layer):
             self.outDeltas_flat = outTensor.deltas[:, :, ch].flatten(order=self.order)
             self.inDeltas_flat[self.mask[ch,:]] = self.outDeltas_flat
             inTensor.deltas[:, :, ch] = np.reshape(self.inDeltas_flat, (self.inShape[0], self.inShape[1]))
+        
 
 
 class Flatten(Layer):

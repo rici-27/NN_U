@@ -20,7 +20,7 @@ class SGDTrainer():
             start_time = time.time()
 
             for m in range(len(data[0])):
-                if m % 100 == 0:
+                if m % 10 == 0:
                     print(f"Iteration {m}")
                 network.forward(data[0][m])
                 network.backprop(Tensor(data[1][m]))

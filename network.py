@@ -40,7 +40,7 @@ class Network():
                 shape = tuple(layer.outShape)
 
             t = Tensor(np.zeros(shape))
-
+            
             #t = Tensor(np.zeros([layer.outShape])) ### hier anpassen je nach shape, bei cnn layer ist outShape schon array, deswegen stören die eckigen klammern
             self.tensor_list.append(t)
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
@@ -57,6 +57,9 @@ class Network():
         for i in range(0,len(self.layers)):
             if type(self.layers[i]) == FCN_Layer:
                 self.layers[i].calculate_delta_weights(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
+            if type(self.layers[i]) == Conv2DLayer:
+                self.layers[i].calculate_delta_weights(inTensor = self.tensor_list[i], outTensor = self.tensor_list[i+1])
+        
             
 
     def saveParams(self, folder_path, net):

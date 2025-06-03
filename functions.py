@@ -13,7 +13,7 @@ def sigmoid(x):
     )
 
 def ReLu(x):
-    return np.max(x, 0)
+    return np.maximum(x, 0)
 
 def tanH(x):
     return 1 - 2/(1 + np.exp(2 * x))
