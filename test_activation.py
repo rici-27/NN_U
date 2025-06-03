@@ -40,7 +40,7 @@ class TestSoftmax(unittest.TestCase):
         target_values = np.dot(out_tensors.deltas, (sm_diag - sm_mat))
         print(f"targets: {target_values}")
         self.softmax.forward(in_tensors, out_tensors)
-        self.softmax.backward(out_tensors, in_tensors)
+        self.softmax.backward(outTensor=out_tensors, inTensor=in_tensors)
         print(f"calculation: {in_tensors.deltas}")
         self.assertTrue(
             np.allclose(
@@ -55,7 +55,7 @@ class TestSoftmax(unittest.TestCase):
 
 class TestSigmoid(unittest.TestCase):
     def setUp(self) -> None:
-        self.sigmoid = Sigmoid()
+        self.sigmoid = Sigmoid((5,))
 
     def test_forward(self) -> None:
         in_tensors = Tensor(elements=np.array([-2, 2, 0, 4, 5], dtype=np.float64))
@@ -80,7 +80,7 @@ class TestSigmoid(unittest.TestCase):
         expected_output = [1.1796716, 0.7349551, 0.36141328, 0.15896436]
 
         self.sigmoid.forward(in_tensors, out_tensors)
-        self.sigmoid.backward(out_tensors, in_tensors)
+        self.sigmoid.backward(outTensor=out_tensors, inTensor =in_tensors)
         self.assertTrue(
             np.allclose(
                 in_tensors.deltas,
@@ -94,7 +94,7 @@ class TestSigmoid(unittest.TestCase):
 
 class TestReLU(unittest.TestCase):
     def setUp(self) -> None:
-        self.relu = ReLU()
+        self.relu = ReLU(5)
 
     def test_forward(self) -> None:
         in_tensors = Tensor(elements=np.array([-2, 2, 0, 4, 5], dtype=np.float64))
@@ -119,7 +119,7 @@ class TestReLU(unittest.TestCase):
         expected_output = np.array([0, -7, 0, 9])
 
         self.relu.forward(in_tensors, out_tensors)
-        self.relu.backward(out_tensors, in_tensors)
+        self.relu.backward(outTensor=out_tensors, inTensor=in_tensors)
         self.assertTrue(
             np.allclose(
                 in_tensors.deltas,

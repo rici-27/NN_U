@@ -39,36 +39,36 @@ def run_model(folder_path, train=True, net = "FCN"):
         loss_layer = Cross_Entropy_Loss_Layer() 
         layers = []
 
-        cnn1 = Conv2DLayer(28, 28, 1, 2, 2, 6, 1)
+        cnn1 = Conv2DLayer(28, 28, 1, 2, 2, 3, 1)
         layers.append(cnn1)
-        maxpool1 = Pooling2D(27, 27, 6, 14, 14, 6, 2, 2, stride = (2,2))
+        maxpool1 = Pooling2D(27, 27, 3, 14, 14, 3, 2, 2, stride = (2,2))
         layers.append(maxpool1)
-        relu1 = ACT_Layer_ReLu((14, 14, 6))
+        relu1 = ACT_Layer_ReLu((14, 14, 3))
         layers.append(relu1)
         
-        cnn2 = Conv2DLayer(14, 14, 6, 5, 5, 16, 2)
+        cnn2 = Conv2DLayer(14, 14, 3, 5, 5, 6, 2)
         layers.append(cnn2)
-        maxpool2 = Pooling2D(10, 10, 6, 5, 5, 16, 2, 2, stride = (2,2))
+        maxpool2 = Pooling2D(10, 10, 3, 5, 5, 6, 2, 2, stride = (2,2))
         layers.append(maxpool2)
-        relu2 = ACT_Layer_ReLu((5, 5, 16))
+        relu2 = ACT_Layer_ReLu((5, 5, 6))
         layers.append(relu2)
         
-        flatten = Flatten(5, 5, 16, 400)
+        flatten = Flatten(5, 5, 6, 150)
         layers.append(flatten)
         
-        fcn1 = FCN_Layer(400, 120, 1)
+        fcn1 = FCN_Layer(150, 100, 1)
         layers.append(fcn1)
         
-        sigmoid = ACT_Layer_sigmoid(120)
+        sigmoid = ACT_Layer_sigmoid(100)
         layers.append(sigmoid)
         
-        fcn2 = FCN_Layer(120, 60, 2)
+        fcn2 = FCN_Layer(100, 50, 2)
         layers.append(fcn2)
         
-        tanh = ACT_Layer_tanH(60)
+        tanh = ACT_Layer_tanH(50)
         layers.append(tanh)
         
-        fcn3 = FCN_Layer(60, 10, 3)
+        fcn3 = FCN_Layer(50, 10, 3)
         layers.append(fcn3)
         
         softmax = Softmax_Layer(10)
@@ -96,11 +96,11 @@ def run_model(folder_path, train=True, net = "FCN"):
         network_mnist.saveParams(folder_path, net)
 
     else:
-        start_time = time.time()
         network_mnist.loadParams(folder_path, net)
 
     # Netzwerk testen
     mistakes = 0
+    start_time = time.time()
 
     for (x, y) in zip(x_test, y_test):
         network_mnist.forward(x)
@@ -119,7 +119,7 @@ def run_model(folder_path, train=True, net = "FCN"):
 
 #folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 #folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
-#folder_path = f"/Users/ricardabuttmann/Desktop/NN"
+folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
 
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
