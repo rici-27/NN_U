@@ -1,7 +1,8 @@
 In der main.py Datei gibt es eine Variable "folder_path" und eine Funktion "run_model()".
 "folder_path" ist der Pfand zu dem Ordner, in dem die Parameter nach dem Trainieren als
 .pkl Datei gespeichert werden bzw. (falls das Modell nur getestet werden soll) der Ordner,
-aus dem die Parameter geladen werden (-- die Datei heißt params.pkl). 
+aus dem die Parameter geladen werden (-- die Datei heißt params_fcn.pkl für das FCN network
+und params_cnn.pkl für das CNN network). 
 Es gibt zwei params Dateien, eine für das FCN Netzwerk und eine für das CNN Netzwerk.
 
 "run_model()" hat zwei Argumente: "folder_path" und den boolean Train (je nachdem
