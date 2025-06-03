@@ -6,8 +6,6 @@ import time
 import keras
 from optimizer import SGDTrainer
 from layer import *
-import argparse
-import ast
 
 
 def run_model(folder_path, train=True, net = "FCN"):
@@ -79,11 +77,12 @@ def run_model(folder_path, train=True, net = "FCN"):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(0.01, 2)
+        trainer = SGDTrainer(0.01, 10)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path, net)
 
     else:
+        start_time = time.time()
         network_mnist.loadParams(folder_path, net)
 
     # Netzwerk testen
@@ -96,16 +95,19 @@ def run_model(folder_path, train=True, net = "FCN"):
             mistakes += 1
 
     err = mistakes / len(y_test)
+    end_time = time.time()
 
     print("Fehlerquote: ", err)
     print("Accuracy: ", 1-err)
+    print("Dauer der Auswertung:", round(end_time - start_time, 2), "Sekunden")
 
 # Hier passenden Ordnerpfad eingeben wie in README beschrieben
-folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
+
+#folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 #folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
-#folder_path = f"/Users/ricardabuttmann/Desktop/NN"
+folder_path = f"/Users/ricardabuttmann/Desktop/NN"
 
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
 # Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
-run_model(folder_path, True, "FCN")
+run_model(folder_path, True, "CNN")

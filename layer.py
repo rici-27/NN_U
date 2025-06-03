@@ -48,7 +48,7 @@ class Input_Layer_MNIST_CNN(Layer):
 class FCN_Layer(Layer):
 
     def __init__(self, inShape, outShape, num):
-        self.inShape = inShape
+        self.inShape =  inShape
         self.outShape = outShape
         self.num = num
         self.weight = Tensor(np.random.uniform(
