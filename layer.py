@@ -56,7 +56,7 @@ class FCN_Layer(Layer):
         self.bias = Tensor(np.random.uniform(
             low=-0.5, high=0.5, size=(self.outShape)))
     def __repr__(self):
-        return f"FCN_Layer(inShape = self.inShape, outShape = self.outShape, num = self.num)"
+        return f"FCN_Layer(inShape = {self.inShape}, outShape = {self.outShape}, num = {self.num})" ## anpassen
 
     def forward(self, inTensor, outTensor):
         outTensor.elements = np.matmul(inTensor.elements, self.weight.elements) + self.bias.elements 
@@ -177,26 +177,29 @@ class Conv2DLayer(Layer):
         self.weight = Tensor(np.random.uniform(low = -0.5,
                                                high = 0.5,
                                                size =(self.x_length, self.y_length, self.depth, self.amount)))
+        self.out = np.zeros((self.outShape[0] * self.outShape[1], self.amount))
+        self.out_backward = np.zeros((self.inShape[0] * self.inShape[1], self.inShape[2]))
+
 
     def __repr__(self):
         return f"Conv2DLayer(inShape = self.inShape, x_length = self.x_length, y_length = self.y_length, amount = self.amount)"
 
-    def forward(self, inTensor, outTensor):
-        for k in range(self.amount):
-            for i in range(self.outShape[0]):
-                for j in range(self.outShape[1]):
-                    submatrix = inTensor.elements[i : i + self.x_length, j : j + self.y_length, :]
-                    outTensor.elements[i, j, k] = np.sum(submatrix * self.weight.elements[ :, :, :, k]) + self.bias.elements[k]
+    # def forward(self, inTensor, outTensor):
+    #     for k in range(self.amount):
+    #         for i in range(self.outShape[0]):
+    #             for j in range(self.outShape[1]):
+    #                 submatrix = inTensor.elements[i : i + self.x_length, j : j + self.y_length, :]
+    #                 outTensor.elements[i, j, k] = np.sum(submatrix * self.weight.elements[ :, :, :, k]) + self.bias.elements[k]
 
 
-    def backward(self, inTensor, outTensor):
-        padded_deltas = self.padding(outTensor)
-        new_filter = np.rot90(self.weight.elements.transpose(0, 1, 3, 2), k=2)
-        for k in range(self.inShape[2]):
-            for i in range(self.inShape[0]):
-                for j in range(self.inShape[1]):
-                    submatrix = padded_deltas[i : i + self.x_length, j : j + self.y_length, :]
-                    inTensor.deltas[i, j, k] = np.sum(submatrix * new_filter[ :, :, :, k])
+    # def backward(self, inTensor, outTensor):
+    #     padded_deltas = self.padding(outTensor)
+    #     new_filter = np.rot90(self.weight.elements.transpose(0, 1, 3, 2), k=2)
+    #     for k in range(self.inShape[2]):
+    #         for i in range(self.inShape[0]):
+    #             for j in range(self.inShape[1]):
+    #                 submatrix = padded_deltas[i : i + self.x_length, j : j + self.y_length, :]
+    #                 inTensor.deltas[i, j, k] = np.sum(submatrix * new_filter[ :, :, :, k])
         
     
     def padding(self, outTensor):
@@ -204,13 +207,74 @@ class Conv2DLayer(Layer):
         padded_matrix[self.x_length - 1: self.outShape[0] + (self.x_length-1), self.y_length - 1: self.outShape[1] + (self.y_length-1), :] = outTensor.deltas
         return padded_matrix
     
-    def calculate_delta_weights(self, inTensor, outTensor):
-        for k in range(self.amount):
-            for n in range(self.inShape[2]):
-                self.weight.deltas[:, :, n, k] = convolut(inTensor.elements[:, :, n], outTensor.deltas[:, :, k])
-        
-        for k in range(self.amount):
-            self.bias.deltas[k] = np.sum(outTensor.deltas[:,:,k])
+    # def calculate_delta_weights(self, inTensor, outTensor):
+    #     for k in range(self.amount):
+    #         for n in range(self.inShape[2]):
+    #             self.weight.deltas[:, :, n, k] = convolut(inTensor.elements[:, :, n], outTensor.deltas[:, :, k])
+    #     for k in range(self.amount):
+    #         self.bias.deltas[k] = np.sum(outTensor.deltas[:,:,k])
+
+
+    def forward(self, inTensor, outTensor):
+        # for (inTensor, outTensor) in zip(inTensors, outTensors):
+        #     if self.padding == 'Full' or self.padding == 'Half':
+        #         self.padded_tensor.elements[self.padding_x:-1*self.padding_x,
+        #                                     self.padding_y:-1*self.padding_y, :] = inTensor.elements[:, :, :]
+        #     else:
+        #         self.padded_tensor.elements = inTensor.elements
+        #     # convolution, work with block to save on the channel-for-loop
+        for f in range(0, self.amount):
+            # create windows of the size of the kernel over the input
+            window = np.lib.stride_tricks.sliding_window_view(inTensor.elements, (
+                self.x_length, self.y_length, self.depth))
+            # compute tensorproduct over the window and the filter
+            filter = self.weight.elements[:, :, :,f]
+            self.out[:, f] = np.tensordot(window, filter, axes=3).flatten(order='F')
+            #print("Größe eines outs:", np.shape(np.tensordot(window, filter, axes=3).flatten(order='F')))
+        # reshape into outShape
+        #print(np.shape(self.out))
+        outTensor.elements = np.reshape(
+            self.out, self.outShape, 'F') + self.bias.elements
+
+    def backward(self, outTensor, inTensor):
+        # for (inTensor, outTensor) in zip(inTensors, outTensors):
+        #     if self.padding == 'None' or self.padding == 'Half':
+        #         self.padded_tensor_backward.deltas[self.padding_x:-1*self.padding_x,
+        #                                            self.padding_y:-1*self.padding_y, :] = outTensor.deltas[:, :, :]
+        #     else:
+        #         self.padded_tensor_backward.deltas = outTensor.deltas
+        padded_deltas = self.padding(outTensor)
+        rot_trans_filter = Tensor(
+            np.rot90(np.transpose(self.weight.elements, (0, 1, 3, 2)), 2))
+        # convolution, work with block to save on the channel-for-loop
+        # out = []
+        for f in range(0, self.inShape[2]):
+            # create windows of the size of the kernel over the input
+            window = np.lib.stride_tricks.sliding_window_view(padded_deltas, (
+                self.x_length, self.y_length, self.amount))
+            # compute tensorproduct over the window and the filter
+            filter = rot_trans_filter.elements[:, :, :, f]
+            self.out_backward[:, f] = np.tensordot(window, filter, axes=3).flatten(order='F')
+        # reshape into outShape
+        inTensor.deltas = np.reshape(self.out_backward, self.inShape, 'F')
+
+    def calculate_delta_weights(self, outTensor, inTensor):
+        # filter delta update
+        out = []
+        for f in range(0, self.outShape[-1]):
+            for ch in range(0, self.inShape[2]):
+                # get window, depending on the channel and the filter
+                window = np.lib.stride_tricks.sliding_window_view(inTensor.elements[:, :, ch],
+                                                                    window_shape=np.shape(outTensor.deltas[:, :, f]))
+                # compute tensorproduct over the window (inTensor(channel) and the kernel (outTensor.deltas(filter))
+                out = np.append(out, np.transpose(np.tensordot(window, outTensor.deltas[:, :, f])))
+            # reshape into shape of filter and update
+        self.weight.deltas = np.reshape(out, shape=np.shape(self.weight.elements), order='F')
+
+        # bias delta update
+        for k in range(0, np.shape(self.bias.elements)[0]):
+            self.bias.deltas[k] = np.sum(outTensor.deltas[:, :, k])
+
 
 
 class Pooling2D(Layer):

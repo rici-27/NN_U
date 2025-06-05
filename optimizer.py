@@ -21,14 +21,18 @@ class SGDTrainer():
             start_time = time.time()
 
             for m in range(len(data[0])):
-                # if m % 100 == 0:
-                #     print(f"Iteration {m}")
+                if m % 100 == 0:
+                    print(f"Iteration {m}")
                 network.forward(data[0][m])
                 network.backprop(Tensor(data[1][m]))
                 epoch_loss += network.loss.elements
 
                 for n in range(len(network.layers)):
                     if type(network.layers[n]) == FCN_Layer:
+                        network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
+                        network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
+
+                    elif type(network.layers[n]) == Conv2DLayer:
                         network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
                         network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
 

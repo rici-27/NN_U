@@ -12,6 +12,7 @@ def run_model(folder_path, train=True, net = "FCN"):
 
 
     if net == "FCN":
+        step_size = 0.01
         input_layer = Input_Layer_MNIST_FCN(np.array([28, 28, 1]))
         loss_layer = Cross_Entropy_Loss_Layer(10)  
         layers = []
@@ -35,40 +36,41 @@ def run_model(folder_path, train=True, net = "FCN"):
         layers.append(softmax)
         
     if net == "CNN":
+        step_size = 0.001
         input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
         loss_layer = Cross_Entropy_Loss_Layer(10) 
         layers = []
 
-        cnn1 = Conv2DLayer(28, 28, 1, 2, 2, 3, 1)
+        cnn1 = Conv2DLayer(28, 28, 1, 2, 2, 6, 1)
         layers.append(cnn1)
-        maxpool1 = Pooling2D(27, 27, 3, 14, 14, 3, 2, 2, stride = (2,2))
+        maxpool1 = Pooling2D(27, 27, 6, 14, 14, 6, 2, 2, stride = (2,2))
         layers.append(maxpool1)
-        relu1 = ACT_Layer_ReLu((14, 14, 3))
+        relu1 = ACT_Layer_ReLu((14, 14, 6))
         layers.append(relu1)
         
-        cnn2 = Conv2DLayer(14, 14, 3, 5, 5, 6, 2)
+        cnn2 = Conv2DLayer(14, 14, 6, 5, 5, 12, 2)
         layers.append(cnn2)
-        maxpool2 = Pooling2D(10, 10, 3, 5, 5, 6, 2, 2, stride = (2,2))
+        maxpool2 = Pooling2D(10, 10, 12, 5, 5, 12, 2, 2, stride = (2,2))
         layers.append(maxpool2)
-        relu2 = ACT_Layer_ReLu((5, 5, 6))
+        relu2 = ACT_Layer_ReLu((5, 5, 12))
         layers.append(relu2)
         
-        flatten = Flatten(5, 5, 6, 150)
+        flatten = Flatten(5, 5, 12, 300)
         layers.append(flatten)
         
-        fcn1 = FCN_Layer(150, 100, 1)
+        fcn1 = FCN_Layer(300, 200, 1)
         layers.append(fcn1)
         
-        sigmoid = ACT_Layer_sigmoid(100)
+        sigmoid = ACT_Layer_sigmoid(200)
         layers.append(sigmoid)
         
-        fcn2 = FCN_Layer(100, 50, 2)
+        fcn2 = FCN_Layer(200, 100, 2)
         layers.append(fcn2)
         
-        tanh = ACT_Layer_tanH(50)
+        tanh = ACT_Layer_tanH(100)
         layers.append(tanh)
         
-        fcn3 = FCN_Layer(50, 10, 3)
+        fcn3 = FCN_Layer(100, 10, 3)
         layers.append(fcn3)
         
         softmax = Softmax_Layer(10)
@@ -91,7 +93,7 @@ def run_model(folder_path, train=True, net = "FCN"):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(0.01, 10)
+        trainer = SGDTrainer(step_size, 10)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path, net)
 
@@ -124,4 +126,4 @@ folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
 # Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
-run_model(folder_path, False, "FCN")
+run_model(folder_path, True, "CNN")
