@@ -119,11 +119,11 @@ def run_model(folder_path, train=True, net = "FCN"):
 
 # Hier passenden Ordnerpfad eingeben wie in README beschrieben
 
-#folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
+folder_path = r"C:\Users\Anwender\Desktop\Neuronale Netze"
 #folder_path = r"C:\Users\Simon\Desktop\Neuronale Netze"
-folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
+#folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
 
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
 # Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
-run_model(folder_path, True, "CNN")
+run_model(folder_path, True, "FCN")
