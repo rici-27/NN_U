@@ -9,10 +9,9 @@ import time
 
 class SGDTrainer():
 
-    def __init__(self, learningRate: float, amountEpochs: int, Shuffle: bool=True):
+    def __init__(self, learningRate: float, amountEpochs: int):
         self.learningRate = learningRate
         self.amountEpochs = amountEpochs
-        self.shuffle = Shuffle
 
     def optimizing(self, network: Network, data):
         gesamt_zeit = 0
@@ -21,8 +20,8 @@ class SGDTrainer():
             start_time = time.time()
 
             for m in range(len(data[0])):
-                if m % 100 == 0:
-                    print(f"Iteration {m}")
+                # if m % 1000 == 0:
+                #     print(f"Iteration {m}")
                 network.forward(data[0][m])
                 network.backprop(Tensor(data[1][m]))
                 epoch_loss += network.loss.elements
@@ -32,7 +31,7 @@ class SGDTrainer():
                         network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
                         network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
 
-                    elif type(network.layers[n]) == Conv2DLayer:
+                    if type(network.layers[n]) == Conv2DLayer:
                         network.layers[n].weight.elements -= self.learningRate * network.layers[n].weight.deltas
                         network.layers[n].bias.elements -= self.learningRate * network.layers[n].bias.deltas
 
