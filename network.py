@@ -18,22 +18,18 @@ class Network():
 
     def forward(self, data):
 
-        self.tensor_list = [] # vllt unnötig
+        self.tensor_list = [] 
         if np.isscalar(self.input_layer.outShape):
                 shape = (int(self.input_layer.outShape),)
         else:
             shape = tuple(self.input_layer.outShape)
-
-        t = Tensor(np.zeros(self.input_layer.outShape))
         
-        t0= Tensor(np.zeros(shape)) # hier aufpassen bei fcn wieder anders
+        t0= Tensor(np.zeros(shape)) 
         self.tensor_list.append(t0)
 
         self.input_layer.forward(data, outTensor = self.tensor_list[0])
         
         for layer in self.layers:
-
-            # das hier noch überarbeiten!
             
             if np.isscalar(layer.outShape):
                 shape = (int(layer.outShape),)
@@ -43,6 +39,7 @@ class Network():
             t = Tensor(np.zeros(shape))
 
             self.tensor_list.append(t)
+            
             layer.forward(inTensor = self.tensor_list[-2], outTensor = self.tensor_list[-1])
 
 

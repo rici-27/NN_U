@@ -36,35 +36,35 @@ def run_model(folder_path, train, net):
         layers.append(softmax)
         
     if net == "CNN":
-        step_size = 0.001
+        step_size = 0.01
         input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
         loss_layer = Cross_Entropy_Loss_Layer(10) 
         layers = []
 
-        cnn1 = Conv2DLayer(28, 28, 1, 6, 6, 10, 1)
+        cnn1 = Conv2DLayer(28, 28, 1, 5, 5, 8, 1)
         layers.append(cnn1)
-        maxpool1 = Pooling2D(23, 23, 10, 11, 11, 10, 2, 2, stride = (2,2))
+        maxpool1 = Pooling2D(24, 24, 8, 12, 12, 8, 2, 2, stride = (2,2))
         layers.append(maxpool1)
-        relu1 = ACT_Layer_sigmoid((11, 11, 10))
+        relu1 = ACT_Layer_sigmoid((12, 12, 10))
         layers.append(relu1)
         
-        # cnn2 = Conv2DLayer(12, 12, 6, 5, 5, 9, 2)
-        # layers.append(cnn2)
-        # maxpool2 = Pooling2D(8, 8, 9, 4, 4, 9, 2, 2, stride = (2,2))
-        # layers.append(maxpool2)
-        # relu2 = ACT_Layer_ReLu((8, 8, 9))
-        # layers.append(relu2)
+        cnn2 = Conv2DLayer(12, 12, 8, 2, 2, 8, 2)
+        layers.append(cnn2)
+        maxpool2 = Pooling2D(11, 11, 8, 5, 5, 8, 2, 2, stride = (2,2))
+        layers.append(maxpool2)
+        relu2 = ACT_Layer_sigmoid((5, 5, 8))
+        layers.append(relu2)
         
-        flatten = Flatten(11, 11, 10, 1210)
+        flatten = Flatten(5, 5, 8, 200) 
         layers.append(flatten)
         
-        fcn1 = FCN_Layer(1210, 500, 1)
+        fcn1 = FCN_Layer(200, 150, 1)
         layers.append(fcn1)
         
-        sigmoid = ACT_Layer_sigmoid(500)
+        sigmoid = ACT_Layer_sigmoid(150)
         layers.append(sigmoid)
         
-        fcn2 = FCN_Layer(500, 100, 2)
+        fcn2 = FCN_Layer(150, 100, 2)
         layers.append(fcn2)
         
         tanh = ACT_Layer_tanH(100)
@@ -93,7 +93,7 @@ def run_model(folder_path, train, net):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(step_size, 15)
+        trainer = SGDTrainer(step_size, 20)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path, net)
 
