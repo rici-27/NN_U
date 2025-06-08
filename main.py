@@ -13,6 +13,7 @@ def run_model(folder_path, train, net):
     np.random.seed(27)
     if net == "FCN":
         step_size = 0.01
+        epochs = 20
         input_layer = Input_Layer_MNIST_FCN(np.array([28, 28, 1]))
         loss_layer = Cross_Entropy_Loss_Layer(10)  
         layers = []
@@ -36,7 +37,8 @@ def run_model(folder_path, train, net):
         layers.append(softmax)
         
     if net == "CNN":
-        step_size = 0.01
+        step_size = 0.005
+        epochs = 15
         input_layer = Input_Layer_MNIST_CNN(np.array([28, 28, 1])) 
         loss_layer = Cross_Entropy_Loss_Layer(10) 
         layers = []
@@ -93,7 +95,7 @@ def run_model(folder_path, train, net):
 
     # Netzwerk trainieren bzw. Parameter einlesen
     if train == True:
-        trainer = SGDTrainer(step_size, 20)
+        trainer = SGDTrainer(step_size, epochs)
         trainer.optimizing(network_mnist, train_data)
         network_mnist.saveParams(folder_path, net)
 
