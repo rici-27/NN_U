@@ -36,8 +36,8 @@ class TestPooling2D(unittest.TestCase):
             ]
         ]))
         out_tensor = Tensor(np.zeros([2, 2, 2]))
-        pool_layer = Pooling2D(inShape1=4, inShape2=4, inShape3=2,
-                               outShape1 = 2, outShape2 = 2, outShape3=2, x_length = 2, y_length=2, stride=np.array([2, 2]))
+        pool_layer = Pooling2D(inShape = (4, 4, 2), outShape=(2,2,2), 
+                               x_length = 2, y_length=2, stride=np.array([2, 2]))
 
         pool_layer.forward(in_tensor, out_tensor)
         expected_forward_result = np.array([
@@ -129,7 +129,7 @@ class TestFullyConnectedLayer(unittest.TestCase):
 
 class TestConv2DLayer(unittest.TestCase):
     def test_forward(self) -> None:
-        conv2d = Conv2DLayer(inShape1=4, inShape2=3, inShape3=2, x_length=2, y_length=2, amount=2, num=1)
+        conv2d = Conv2DLayer(inShape = (4, 3, 2), x_length=2, y_length=2, amount=2, num=1)
         #this filter has the shape (rows, columns, num_channels, num_filters)
         conv2d.weight = Tensor(
             elements=np.array(
@@ -200,7 +200,7 @@ class TestConv2DLayer(unittest.TestCase):
         )
 
     def test_backward(self) -> None:
-        conv2d = Conv2DLayer(inShape1=4, inShape2=3, inShape3=2, x_length=2, y_length=2, amount=2, num=1)
+        conv2d = Conv2DLayer(inShape = (4, 3, 2), x_length=2, y_length=2, amount=2, num=1)
         #this filter has the shape (rows, columns, num_channels, num_filters)
         conv2d.weight = Tensor(
             elements=np.array(
@@ -302,7 +302,7 @@ class TestConv2DLayer(unittest.TestCase):
         )
 
     def test_weight_update(self) -> None:
-        conv2d = Conv2DLayer(inShape1=4, inShape2=3, inShape3=2, x_length=2, y_length=2, amount=2, num=1)
+        conv2d = Conv2DLayer(inShape = (4, 3, 2), x_length=2, y_length=2, amount=2, num=1)
         #his filter has the shape (rows, columns, num_channels, num_filters)
         conv2d.weight = Tensor(
             elements=np.array(

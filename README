@@ -1,22 +1,124 @@
-In der main.py Datei gibt es eine Variable "folder_path" und eine Funktion "run_model()".
-"folder_path" ist der Pfand zu dem Ordner, in dem die Parameter nach dem Trainieren als
-.pkl Datei gespeichert werden bzw. (falls das Modell nur getestet werden soll) der Ordner,
-aus dem die Parameter geladen werden (-- die Datei heißt params_fcn.pkl für das FCN network
-und params_cnn.pkl für das CNN network). 
-Es gibt zwei params Dateien, eine für das FCN Netzwerk und eine für das CNN Netzwerk.
+In der main.py Datei gibt es ganz unten eine Variable "folder_path" und einen Aufruf
+der Funktion "run_model()". In der Variable "folder_path" muss Pfand zu dem Ordner, 
+in dem die Parameter nach dem Trainieren als .pkl Datei gespeichert werden bzw. 
+(falls das Modell nur getestet werden soll) bzw. aus dem die Parameter geladen werden. 
+Die Datei heißt params_fcn.pkl für das FCN Netzwerk und params_cnn.pkl für das CNN Netzwerk. 
 
-"run_model()" hat drei Argumente: "folder_path", den boolean Train (je nachdem
- ob trainiert werden soll -true oder falls nur getestet werden soll -- false) und einen string net, der mit "FCN" für das Fully Connected network steht und mit "CNN" für das Convolutional network.
-Die Anzahl der Epochen kann im Objektaufruf des Trainers in main.py eingestellt werden.
+"run_model()" hat drei Argumente: Das erste Argument ist "folder_path". 
+Als zweites den boolean Train; mit 'true' wird das Netzwerk trainiert und 
+mit 'false' wird es mit den Parametern aus der .pkl Datei getestet. 
+Als drittes einen string 'net', der mit "FCN" das Fully Connected Netwerk auswählt
+und mit "CNN" das Convolutional Netwerk.
 
-Beobachtungen (Stand UB1):
+Die Anzahl der Epochen und die Step Size, kann im Objektaufruf des Trainers
+in main.py eingestellt werden, sind aber bereits für FCN und CNN jeweils angepasst.
+
+---------------------------------------------------------------------------------------------
+
+Beobachtungen FCN:
 -   Cross_entropy_loss lieferte bessere Ergebnisse als der MSE
 -   Anfangs haben wir mir konstanter Schrittweite 0.5 gearbeitet, das hat nicht funktioniert,
-    Schrittweite 0.001 war deutlich besser (Fehler zwischen 3 und 4 %) inzwischen bekommen
-    wir mit einer Schrittweite von 0.01 einen Fehler von 2,5 - 3%
+    Schrittweite 0.001 war deutlich besser (Fehler zwischen 3 und 4%) und inzwischen bekommen
+    wir mit einer Schrittweite von 0.01 einen Fehler von 2,64%.
+-   Für die Layer haben wir abwechselnd Fully Connected und Aktivierungslayer gewählt. Die Wahl
+    der jeweiligen Größen war recht simple, da wir bei Vektor Länge 10 herauskommen sollten.
 -   wir hatten auch versucht eine dynamische Schrittweite via Armijo Regel zu implementieren,
     dies scheiterte (Genauigkeit war zu schlecht, ein Fehler bei der Implementierung ist 
     nicht auszuschließen, wurde aber aus Zeitgründen nicht weiter geführt. Eine Überlegung war,
     dass wir mit Armijo in lokalen Minima stecken bleiben, was mit konstanter Schrittweite
     nicht passiert.)
 
+Ausgabe:
+    Epoch: 0 , Loss: 0.2909932656599922
+    Dauer der Epoche: 15.05 Sekunden
+    Epoch: 1 , Loss: 0.13921705937106124
+    Dauer der Epoche: 14.93 Sekunden
+    Epoch: 2 , Loss: 0.09715227057831805
+    Dauer der Epoche: 14.84 Sekunden
+    Epoch: 3 , Loss: 0.07120470786573851
+    Dauer der Epoche: 14.95 Sekunden
+    Epoch: 4 , Loss: 0.05303100746341968
+    Dauer der Epoche: 15.58 Sekunden
+    Epoch: 5 , Loss: 0.039450285749810216
+    Dauer der Epoche: 16.09 Sekunden
+    Epoch: 6 , Loss: 0.02894444293971698
+    Dauer der Epoche: 15.25 Sekunden
+    Epoch: 7 , Loss: 0.021309708375781573
+    Dauer der Epoche: 14.97 Sekunden
+    Epoch: 8 , Loss: 0.015568355735315134
+    Dauer der Epoche: 15.62 Sekunden
+    Epoch: 9 , Loss: 0.011441248782851056
+    Dauer der Epoche: 15.45 Sekunden
+    Epoch: 10 , Loss: 0.008540540210145572
+    Dauer der Epoche: 15.41 Sekunden
+    Epoch: 11 , Loss: 0.006512836068475478
+    Dauer der Epoche: 15.92 Sekunden
+    Epoch: 12 , Loss: 0.005126297239746835
+    Dauer der Epoche: 15.26 Sekunden
+    Epoch: 13 , Loss: 0.0041665108230875565
+    Dauer der Epoche: 15.41 Sekunden
+    Epoch: 14 , Loss: 0.0034753239433543016
+    Dauer der Epoche: 14.93 Sekunden
+    Epoch: 15 , Loss: 0.00294658910394919
+    Dauer der Epoche: 15.55 Sekunden
+    Epoch: 16 , Loss: 0.0025335316645229565
+    Dauer der Epoche: 15.68 Sekunden
+    Epoch: 17 , Loss: 0.0022023819569082937
+    Dauer der Epoche: 15.55 Sekunden
+    Epoch: 18 , Loss: 0.0019457806957116637
+    Dauer der Epoche: 15.29 Sekunden
+    Epoch: 19 , Loss: 0.0017381072638620566
+    Dauer der Epoche: 15.54 Sekunden
+    Gesamtzeit des Trainings:: 5.12 Minuten
+    Fehlerquote:  0.0264
+    Accuracy:  0.9736
+    Dauer der Auswertung: 0.59 Sekunden
+
+---------------------------------------------------------------------------------------------
+
+CNN:
+-   zu anfangs war es schwer, eine bessere Fehlerquote als mit dem FCN zu erreichen
+-   entgegen unserer Recherchen haben größere Filter (5x5) für uns besser funktioniert
+    als kleinere (2x2). wie beim FCN haben wir mit sigmoid und tanh gearbeitet. 
+-   zuerst war es unser Ziel möglichst viele Filter und Epochen zu wählen, sodass das Netz
+    noch in akzeptabler Zeit trainiert werden kann. Jedoch haben wir festgestellt, dass
+    die aktuelle Zahl an Filtern und Epochen besser funktioniert als höhere. 
+    Wahrscheinlich kommt es hier zum overfitting. Dennoch haben wir mit 2,28% nur eine 
+    etwas bessere Fehlerquote als bei FCN erreicht, was uns gewundert hat.
+-   Wir haben 0.1, 0.005 und 0.001 als Schrittweiten getestet, und sind mit dem Mittelweg
+    von 0.005 zum besten Ergebnis gekommen.
+
+
+Epoch: 0 , Loss: 0.5521283449298483
+Dauer der Epoche: 411.06 Sekunden
+Epoch: 1 , Loss: 0.22401772625069608
+Dauer der Epoche: 409.08 Sekunden
+Epoch: 2 , Loss: 0.1634615430992476
+Dauer der Epoche: 411.32 Sekunden
+Epoch: 3 , Loss: 0.13309562892051335
+Dauer der Epoche: 411.13 Sekunden
+Epoch: 4 , Loss: 0.115729555213786
+Dauer der Epoche: 407.29 Sekunden
+Epoch: 5 , Loss: 0.10237455830910311
+Dauer der Epoche: 408.55 Sekunden
+Epoch: 6 , Loss: 0.08999333370160055
+Dauer der Epoche: 413.12 Sekunden
+Epoch: 7 , Loss: 0.08074052322689307
+Dauer der Epoche: 410.2 Sekunden
+Epoch: 8 , Loss: 0.07401035710159039
+Dauer der Epoche: 408.64 Sekunden
+Epoch: 9 , Loss: 0.06742868839610343
+Dauer der Epoche: 410.73 Sekunden
+Epoch: 10 , Loss: 0.061444092231349744
+Dauer der Epoche: 426.55 Sekunden
+Epoch: 11 , Loss: 0.05633524937827634
+Dauer der Epoche: 431.3 Sekunden
+Epoch: 12 , Loss: 0.052179600067170706
+Dauer der Epoche: 407.41 Sekunden
+Epoch: 13 , Loss: 0.048711518989630456
+Dauer der Epoche: 405.9 Sekunden
+Epoch: 14 , Loss: 0.04563723225123501
+Dauer der Epoche: 408.05 Sekunden
+Gesamtzeit des Trainings:: 103.01 Minuten
+Fehlerquote:  0.0228
+Accuracy:  0.9772

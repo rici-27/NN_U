@@ -21,15 +21,4 @@ def tanH(x):
 def softmax(x, w):
     return np.exp(x)/w
 
-# Input sind zwei Matrizen und die Ausgabe ist eine Matrix die durch die Faltung entsteht
-def convolut(X, F):
-    row = X.shape[0] - F.shape[0] + 1
-    col =  X.shape[1] - F.shape[1] + 1
-    Matrix = np.zeros((row, col))
-    
-    for i in range(row):
-        for j in range(col):
-            submatrix = X[i:(i + F.shape[0]), j:(j + F.shape[1])]
-            Matrix[i, j] = np.sum(submatrix * F)
-    return Matrix
     

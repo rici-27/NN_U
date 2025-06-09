@@ -150,9 +150,9 @@ class Cross_Entropy_Loss_Layer(Layer):
 
 class Conv2DLayer(Layer):
     
-    def __init__(self, inShape1, inShape2, inShape3, x_length, y_length, amount, num):
+    def __init__(self, inShape, x_length, y_length, amount, num):
         self.num = num
-        self.inShape = np.array([inShape1, inShape2, inShape3])
+        self.inShape = inShape
         self.outShape = np.array([self.inShape[0] - x_length + 1, self.inShape[1] - y_length + 1, amount])
         self.x_length = x_length
         self.y_length = y_length
@@ -170,32 +170,6 @@ class Conv2DLayer(Layer):
         padded_matrix[self.x_length - 1: -(self.x_length-1), self.y_length - 1: -(self.y_length-1), :] = outTensor.deltas
         return padded_matrix
 
-    # def forward(self, inTensor, outTensor):
-    #     for k in range(self.amount):
-    #         for i in range(self.outShape[0]):
-    #             for j in range(self.outShape[1]):
-    #                 submatrix = inTensor.elements[i : i + self.x_length, j : j + self.y_length, :]
-    #                 outTensor.elements[i, j, k] = np.sum(submatrix * self.weight.elements[ :, :, :, k]) + self.bias.elements[k]
-
-    # def backward(self, inTensor, outTensor):
-    #     padded_deltas = self.padding(outTensor)
-    #     new_filter = np.rot90(self.weight.elements.transpose(0, 1, 3, 2), k=2)
-    #     for k in range(self.inShape[2]):
-    #         for i in range(self.inShape[0]):
-    #             for j in range(self.inShape[1]):
-    #                 submatrix = padded_deltas[i : i + self.x_length, j : j + self.y_length, :]
-    #                 inTensor.deltas[i, j, k] = np.sum(submatrix * new_filter[ :, :, :, k])
-
-    
-    # def calculate_delta_weights(self, inTensor, outTensor):
-    #     for k in range(self.amount):
-    #         for n in range(self.inShape[2]):
-    #             self.weight.deltas[:, :, n, k] = convolut(inTensor.elements[:, :, n], outTensor.deltas[:, :, k])
-    #     for k in range(self.amount):
-    #         self.bias.deltas[k] = np.sum(outTensor.deltas[:,:,k])
-
-    """ Sliding Window Version"""
-
     def forward(self, inTensor, outTensor):
         for f in range(0, self.amount):
             window = np.lib.stride_tricks.sliding_window_view(inTensor.elements, (
@@ -206,7 +180,6 @@ class Conv2DLayer(Layer):
             self.out, self.outShape, 'F') + self.bias.elements
 
     def backward(self, outTensor, inTensor):
-
         padded_deltas = self.padding(outTensor)
         rot_trans_filter = Tensor(
             np.rot90(np.transpose(self.weight.elements, (0, 1, 3, 2)), 2, axes=(0,1)))
@@ -231,15 +204,10 @@ class Conv2DLayer(Layer):
             self.bias.deltas[k] = np.sum(outTensor.deltas[:, :, k])
 
 class Pooling2D(Layer):
-    def __init__(self, inShape1, inShape2, inShape3, outShape1, outShape2, outShape3, x_length, y_length, axis=0, stride=(1, 1)):
-        self.inShape = np.array([inShape1, inShape2, inShape3])
-        self.outShape = np.array([outShape1, outShape2, outShape3])
+    def __init__(self, inShape, outShape, x_length, y_length, stride=(1, 1)):
+        self.inShape = inShape
+        self.outShape = outShape
         self.kernel_size = np.array([x_length, y_length])
-        self.axis = axis
-        if self.axis:
-            self.order = 'C'
-        else:
-            self.order = 'F'
         self.stride = stride
         self.depth = self.inShape[-1]
         self.mask = np.zeros((self.depth, self.outShape[0] * self.outShape[1]), dtype=int)
@@ -247,28 +215,27 @@ class Pooling2D(Layer):
         self.outDeltas_flat = np.zeros((self.outShape[0] * self.outShape[1],))
 
     def forward(self, inTensor, outTensor):
-        a0, a1 = self.axis, abs(self.axis - 1)
-        for j in range(self.outShape[a1]):
-            for i in range(self.outShape[a0]):
-                start_i, start_j = i * self.stride[a0], j * self.stride[a1]
-                end_i, end_j = start_i + self.kernel_size[a0], start_j + self.kernel_size[a1]
+        for j in range(self.outShape[1]):
+            for i in range(self.outShape[0]):
+                start_i, start_j = i * self.stride[0], j * self.stride[1]
+                end_i, end_j = start_i + self.kernel_size[0], start_j + self.kernel_size[1]
                 for ch in range(0, self.depth):
                     outTensor.elements[i, j, ch] = np.max(inTensor.elements[start_i:end_i, start_j:end_j, ch])
-                    relativ_index = np.argmax(inTensor.elements[start_i:end_i, start_j:end_j, ch].flatten(order=self.order))
-                    self.mask[ch, i + j* self.outShape[a0]] = start_i + start_j*(self.inShape[a0]) + relativ_index + relativ_index//self.kernel_size[a0] * (self.inShape[a0] - self.kernel_size[a0])
+                    relativ_index = np.argmax(inTensor.elements[start_i:end_i, start_j:end_j, ch].flatten('F'))
+                    self.mask[ch, i + j* self.outShape[0]] = start_i + start_j*(self.inShape[0]) + relativ_index + relativ_index//self.kernel_size[0] * (self.inShape[0] - self.kernel_size[0])
 
     def backward(self, outTensor, inTensor):
         for ch in range(0, self.depth):
             self.inDeltas_flat *= 0
-            self.outDeltas_flat = outTensor.deltas[:, :, ch].flatten(order=self.order)
+            self.outDeltas_flat = outTensor.deltas[:, :, ch].flatten('F')
             self.inDeltas_flat[self.mask[ch,:]] = self.outDeltas_flat
             inTensor.deltas[:, :, ch] = np.reshape(self.inDeltas_flat, (self.inShape[0], self.inShape[1]))
 
 
 class Flatten(Layer):
     
-    def __init__(self, inShape1, inShape2, inShape3, outShape):
-        self.inShape = np.array([inShape1, inShape2, inShape3])
+    def __init__(self, inShape, outShape):
+        self.inShape = inShape
         self.outShape = outShape
 
     def forward(self, inTensor, outTensor):

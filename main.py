@@ -10,7 +10,6 @@ from layer import *
 
 def run_model(folder_path, train, net):
 
-    np.random.seed(27)
     if net == "FCN":
         step_size = 0.01
         epochs = 20
@@ -43,21 +42,21 @@ def run_model(folder_path, train, net):
         loss_layer = Cross_Entropy_Loss_Layer(10) 
         layers = []
 
-        cnn1 = Conv2DLayer(28, 28, 1, 5, 5, 8, 1)
+        cnn1 = Conv2DLayer((28, 28, 1), 5, 5, 8, 1)
         layers.append(cnn1)
-        maxpool1 = Pooling2D(24, 24, 8, 12, 12, 8, 2, 2, stride = (2,2))
+        maxpool1 = Pooling2D((24, 24, 8), (12, 12, 8), 2, 2, stride = (2,2))
         layers.append(maxpool1)
         relu1 = ACT_Layer_sigmoid((12, 12, 10))
         layers.append(relu1)
         
-        cnn2 = Conv2DLayer(12, 12, 8, 2, 2, 8, 2)
+        cnn2 = Conv2DLayer((12, 12, 8), 2, 2, 8, 2)
         layers.append(cnn2)
-        maxpool2 = Pooling2D(11, 11, 8, 5, 5, 8, 2, 2, stride = (2,2))
+        maxpool2 = Pooling2D((11, 11, 8), (5, 5, 8), 2, 2, stride = (2,2))
         layers.append(maxpool2)
         relu2 = ACT_Layer_sigmoid((5, 5, 8))
         layers.append(relu2)
         
-        flatten = Flatten(5, 5, 8, 200) 
+        flatten = Flatten((5, 5, 8), 200) 
         layers.append(flatten)
         
         fcn1 = FCN_Layer(200, 150, 1)
@@ -128,4 +127,4 @@ folder_path = f"/Users/ricardabuttmann/Desktop/NN/UB1"
 
 # Zweites Argument (True/ False) gibt an, ob der Trainingsmodus aktiviert werden soll
 # Drittes Argument ('FCN'/ 'CNN') gibt an, welches Netzwerk genutzt werden soll
-run_model(folder_path, True, "CNN")
+run_model(folder_path, False, "FCN")
